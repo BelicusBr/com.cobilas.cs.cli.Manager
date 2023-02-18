@@ -124,8 +124,8 @@ namespace Cobilas.CLI.Manager {
                             return false;
                         }
                         for (int J = 0; J < root.ArgCount; J++) {
-                            _ = args.MoveNext();
                             collection.Add($"{CLICMDArg.alias}{J}", args.Current);
+                            _ = args.MoveNext();
                         }
                         break;
                     }
