@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>Cobilas.CLI.Manager</AssemblyName>
+    <RootNamespace>Cobilas.CLI.Manager</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>C:\Users\Usuario\Desktop\Bibliotecas C#\Bibliotecas\CSharp Saidas de dll\.NET Core\</OutputPath>
+  </PropertyGroup>
+
+</Project>
