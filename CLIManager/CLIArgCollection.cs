@@ -21,6 +21,16 @@ namespace Cobilas.CLI.Manager {
             args[Count-1] = item;
         }
 
+        public bool Contains(string arg)
+            => IndexOf(arg) >= 0;
+
+        public int IndexOf(string arg) {
+            for (int I = 0; I < Count; I++)
+                if (this[I].Arg == arg)
+                    return I;
+            return -1;
+        }
+
         public void Add(string arg, string value)
             => Add(new CLIArg(arg, value));
 
