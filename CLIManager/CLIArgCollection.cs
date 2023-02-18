@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace Cobilas.CLI.Manager {
-    public sealed class CLIArgCollection : IEnumerable<CLIArg>, ICollection<CLIArg> {
+    public sealed class CLIArgCollection : IEnumerable<CLIArg>, ICollection<CLIArg>, IReadOnlyList<CLIArg> {
         private CLIArg[] args;
 
         public int Count => args == null ? 0 : args.Length;
         public bool IsReadOnly => args != null && args.IsReadOnly;
+
+        public CLIArg this[int index] => ((IReadOnlyList<CLIArg>)args)[index];
 
         public CLIArgCollection()
         {
