@@ -4,10 +4,14 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Cobilas.CLI.Manager</AssemblyName>
     <RootNamespace>Cobilas.CLI.Manager</RootNamespace>
+    <Authors>Cobilas</Authors>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>CSharp</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\Users\Usuario\Desktop\Bibliotecas C#\Bibliotecas\CSharp Saidas de dll\.NET Core\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>
 
 </Project>

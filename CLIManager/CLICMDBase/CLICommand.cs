@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Cobilas.CLI.Manager {
     public sealed class CLICommand : CLICMDBase {

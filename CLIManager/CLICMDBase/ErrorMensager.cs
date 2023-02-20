@@ -12,10 +12,7 @@ namespace Cobilas.CLI.Manager {
 
         public string this[int index] => ((IReadOnlyList<string>)msm)[index];
 
-        public ErrorMensager()
-        {
-            msm = Array.Empty<string>();
-        }
+        public ErrorMensager() => msm = Array.Empty<string>();
 
         public void Add(string msm) {
             mod = true;
@@ -24,13 +21,9 @@ namespace Cobilas.CLI.Manager {
         }
 
         public IEnumerator<string> GetEnumerator()
-        {
-            return ((IEnumerable<string>)msm).GetEnumerator();
-        }
+            => ((IEnumerable<string>)msm).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
-        {
-            return msm.GetEnumerator();
-        }
+            => msm.GetEnumerator();
     }
 }
