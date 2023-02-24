@@ -9,6 +9,8 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>CSharp</PackageTags>
     <Version>1.2.2</Version>
+    <RepositoryUrl>https://github.com/BelicusBr/Cobilas.CLI.Manager</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
