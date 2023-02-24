@@ -63,14 +63,14 @@ namespace Cobilas.CLI.Manager {
         public static bool Cateter(StringArrayToIEnumerator args, CLICommand root, CLIArgCollection collection, ErrorMensager error, out int funcID) {
             int opcCount = 0;
             int opcCursor = 0;
-            int opcNoOptCount = 0;
-            int opcNoOptCursor = 0;
+            int opcNoOptCount;
+            int opcNoOptCursor;
             while (args.MoveNext()) {
                 for (int I = 0; I < root.Count; I++) {
                     if (root[I].Equals(args.Current)) {
                         if (root[I].GetType() == typeof(CLICommand)) {
                             if (opcCount != opcCursor) {
-                                error.Add("cmd fwd opc");
+                                error.Add("[opc]Number of insufficient arguments!");
                                 funcID = 0;
                                 return false;
                             }
@@ -102,7 +102,7 @@ namespace Cobilas.CLI.Manager {
                                 }
                                 args.Index = ind;
                                 if (opcNoOptCount != opcNoOptCursor) {
-                                    error.Add("no opc compusi");
+                                    error.Add("The obligatory options not added!");
                                     funcID = 0;
                                     return false;
                                 }
@@ -118,7 +118,7 @@ namespace Cobilas.CLI.Manager {
                         }
                     } else if (root[I].Equals(CLICMDArg.alias)) {
                         if (opcCount != opcCursor) {
-                            error.Add("arg fwd opc");
+                            error.Add("Number of insufficient arguments!");
                             funcID = 0;
                             return false;
                         }
