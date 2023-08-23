@@ -8,7 +8,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>CSharp</PackageTags>
-    <Version>1.2.2</Version>
+    <Version>1.3.0</Version>
     <RepositoryUrl>https://github.com/BelicusBr/Cobilas.CLI.Manager</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>

@@ -1,6 +1,7 @@
 ﻿using System;
 
 namespace Cobilas.CLI.Manager {
+    /// <summary>Represents the command that will be inserted in the cli.</summary>
     public sealed class CLICommand : CLICMDBase {
         private readonly int id;
         private readonly int argCount;
@@ -9,6 +10,7 @@ namespace Cobilas.CLI.Manager {
         private readonly string[] alias;
         private readonly CLICMDBase[] bases;
 
+        /// <summary>Function ID.</summary>
         public int ID => id;
         public int ArgCount => argCount;
         public int OpitionCount => opcCount;
@@ -18,6 +20,9 @@ namespace Cobilas.CLI.Manager {
         public CLICMDBase this[int index] => bases[index];
         public CLICMDBase this[string alias] => bases[IndexOf(alias)];
 
+        /// <param name="id">Function ID.</param>
+        /// <param name="alias">The nickname of the role.</param>
+        /// <param name="bases">subfunctions</param>
         public CLICommand(int id, string alias, params CLICMDBase[] bases) {
             this.id = id;
             this.alias = (this.alias2 = alias).Split('/');
@@ -27,10 +32,15 @@ namespace Cobilas.CLI.Manager {
             }
         }
 
+        /// <param name="id">Function ID.</param>
+        /// <param name="alias">The nickname of the role.</param>
         public CLICommand(int id, string alias) : this(id, alias, Array.Empty<CLICMDBase>()) { }
 
+        /// <param name="alias">The nickname of the role.</param>
+        /// <param name="bases">subfunctions</param>
         public CLICommand(string alias, params CLICMDBase[] bases) : this(0, alias, bases) { }
 
+        /// <param name="alias">The nickname of the role.</param>
         public CLICommand(string alias) : this(0, alias, Array.Empty<CLICMDBase>()) { }
 
         public override void Dispose() {
@@ -59,6 +69,10 @@ namespace Cobilas.CLI.Manager {
                     return I;
             return -1;
         }
+
+        /// <summary>Generate an ID using a string.</summary>
+        public static int GenerateId(string id)
+            => id.GetHashCode() << 45;
 
         public static bool Cateter(StringArrayToIEnumerator args, CLICommand root, CLIArgCollection collection, ErrorMensager error, out int funcID) {
             int opcCount = 0;

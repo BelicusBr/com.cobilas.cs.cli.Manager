@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace Cobilas.CLI.Manager {
+    /// <summary>Represents the errors to be shown in the CLI.</summary>
     public sealed class ErrorMensager: IReadOnlyList<string> {
         private bool mod;
         private string[] msm;
@@ -14,6 +15,7 @@ namespace Cobilas.CLI.Manager {
 
         public ErrorMensager() => msm = Array.Empty<string>();
 
+        /// <summary>Add error messages.</summary>
         public void Add(string msm) {
             mod = true;
             Array.Resize(ref this.msm, Count + 1);

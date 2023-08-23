@@ -1,4 +1,5 @@
 ﻿namespace Cobilas.CLI.Manager {
+    /// <summary>Represents the argument that was entered in the cli.</summary>
     public sealed class CLICMDArg : CLICMDBase {
         public const string alias = "{arg}";
         public override string Alias => alias;

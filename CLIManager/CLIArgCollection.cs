@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace Cobilas.CLI.Manager {
+    /// <summary>Represents a collection of arguments.</summary>
     public sealed class CLIArgCollection : IEnumerable<CLIArg>, ICollection<CLIArg>, IReadOnlyList<CLIArg> {
         private CLIArg[] args;
 
@@ -11,8 +12,7 @@ namespace Cobilas.CLI.Manager {
 
         public CLIArg this[int index] => ((IReadOnlyList<CLIArg>)args)[index];
 
-        public CLIArgCollection()
-        {
+        public CLIArgCollection() {
             args = Array.Empty<CLIArg>();
         }
 
