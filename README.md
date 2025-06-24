@@ -1,0 +1,1 @@
+# com.cobilas.cs.cli.Manager

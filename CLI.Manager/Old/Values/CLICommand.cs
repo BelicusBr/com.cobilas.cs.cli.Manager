@@ -74,6 +74,16 @@ namespace Cobilas.CLI.Manager {
         public static int GenerateId(string id)
             => id.GetHashCode() << 45;
 
+        public static bool Cateter2(StringArrayToIEnumerator args, CLICommand root, CLIArgCollection collection, ErrorMensager error, out int funcID) {
+            _ = args.MoveNext();
+            for (int A = 0; A < root.Count; A++) {
+                
+            }
+            
+            funcID = 0;
+            return false;
+        }
+
         public static bool Cateter(StringArrayToIEnumerator args, CLICommand root, CLIArgCollection collection, ErrorMensager error, out int funcID) {
             int opcCount = 0;
             int opcCursor = 0;
