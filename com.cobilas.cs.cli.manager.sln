@@ -4,6 +4,8 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cobilas.CLI.Manager", "com.cobilas.cs.cli.Manager\Cobilas.CLI.Manager.csproj", "{6D6869F2-7051-372B-5468-23C60B199670}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cobilas.CLI.Manager.Test", "Cobilas.CLI.Manager.Test\Cobilas.CLI.Manager.Test.csproj", "{C15395AF-E388-42BC-8D06-97401BF505C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,6 +16,10 @@ Global
 		{6D6869F2-7051-372B-5468-23C60B199670}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D6869F2-7051-372B-5468-23C60B199670}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D6869F2-7051-372B-5468-23C60B199670}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C15395AF-E388-42BC-8D06-97401BF505C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C15395AF-E388-42BC-8D06-97401BF505C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C15395AF-E388-42BC-8D06-97401BF505C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C15395AF-E388-42BC-8D06-97401BF505C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
