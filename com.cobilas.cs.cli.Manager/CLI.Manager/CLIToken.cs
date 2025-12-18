@@ -3,5 +3,6 @@
 public enum CLIToken : byte {
 	Function = 1,
 	Option = 2,
-	Text = 3
+	Argument = 3,
+	EndCode = 4
 }

@@ -1,24 +1,35 @@
 ﻿using System;
 using System.Linq;
 using Cobilas.CLI.Manager;
+using System.Collections.Generic;
 
 internal class Program {
+
 	private static void Main(string[] args) {
 		Console.WriteLine("Program.Main");
-		
-		CLIParse.AddToken("remove", CLIToken.Function);
-		CLIParse.AddToken("-r", CLIToken.Function);
-		CLIParse.AddToken("version", CLIToken.Function);
-		CLIParse.AddToken("-v", CLIToken.Function);
-		CLIParse.AddToken("add", CLIToken.Function);
-		CLIParse.AddToken("-a", CLIToken.Function);
-		CLIParse.AddToken("-folder", CLIToken.Option);
-		CLIParse.AddToken("-file", CLIToken.Option);
-		CLIParse.AddToken("--fd", CLIToken.Option);
-		CLIParse.AddToken("--fl", CLIToken.Option);
+		CLIParse.IsAutoException = false;
+		CLIParse.Rule = (c, t) => {
+			if (t.Value == (long)CLIToken.Function) {
+				InfoTokenData data = (InfoTokenData)c;
+				object? funcC = data["funcC"];
+				if (funcC == null) data["funcC"] = 1L;
+				else if ((long)funcC == 1) return true;
+			}
+			return false;
+		};
 
+		AddToken();
 
-		foreach ((string, CLIToken) item in CLIParse.Parse(args).Select(v => ((string, CLIToken))v))
+		foreach (var item in CLIParse.Parse(args))
+		{
 			Console.WriteLine(item);
+		}
+	}
+
+	private static void AddToken() {
+
+		CLIParse.AddToken((long)CLIToken.Function, "remove", "-r", "add", "-a");
+		CLIParse.AddToken((long)CLIToken.Option, "-file", "--fl", "-folder", "--fd");
+
 	}
 }

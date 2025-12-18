@@ -1,3 +1,7 @@
-﻿namespace Cobilas.CLI.Manager;
+﻿using System.Collections.Generic;
 
-public delegate object?[]? CLIFunction(params object?[]? args);
+namespace Cobilas.CLI.Manager;
+
+public delegate KeyValuePair<string, long> TokenAnalysis(TokenListReadOnly read, string token);
+
+public delegate bool ParserRule(CLITokenData data, KeyValuePair<string, long> token);
