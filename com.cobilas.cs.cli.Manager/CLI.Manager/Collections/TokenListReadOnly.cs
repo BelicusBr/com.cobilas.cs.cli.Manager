@@ -1,8 +1,7 @@
-﻿using System.Linq;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Cobilas.CLI.Manager;
+namespace Cobilas.CLI.Manager.Collections;
 
 public class TokenListReadOnly : IReadOnlyList<KeyValuePair<string, long>> {
 
@@ -22,10 +21,10 @@ public class TokenListReadOnly : IReadOnlyList<KeyValuePair<string, long>> {
 
 	public TokenListReadOnly(IEnumerable<KeyValuePair<string, long>>? collection) {
 		if (collection is null) {
-			this.list = [];
+			list = [];
 			return;
 		}
-		this.list = [.. collection];
+		list = [.. collection];
 	}
 
 	public int IndexOf(string token) {

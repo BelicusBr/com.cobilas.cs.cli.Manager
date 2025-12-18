@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\com.cobilas.cs.cli.Manager\Cobilas.CLI.Manager.csproj" />
+    <ProjectReference Include="..\com.cobilas.cs.cli.manager\com.cobilas.cs.cli.manager.csproj" />
   </ItemGroup>
 
 </Project>

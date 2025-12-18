@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Cobilas.CLI.Manager.Exceptions;
+using System;
+using System.Collections.Generic;
 
 namespace Cobilas.CLI.Manager;
 
@@ -22,8 +24,19 @@ public class InfoTokenData : CLITokenData {
 		values = [];
 	}
 
-	public void Clear()
-	{
-		values.Clear();
+	public T? GetValue<T>(string? key)
+		=> GetValue<T>(key, (k) => k == key);
+
+
+	public T? GetValue<T>(string? key, Predicate<string>? predicate) {
+		ExceptionMessages.ThrowIfNullOrEmpty(key);
+		ExceptionMessages.ThrowIfNull(predicate);
+		object? result = values.Find(predicate).Value;
+		return Convert.GetTypeCode(result) switch {
+			TypeCode.Empty => default,
+			_ => (T?)result
+		};
 	}
+
+	public void Clear() => values.Clear();
 }

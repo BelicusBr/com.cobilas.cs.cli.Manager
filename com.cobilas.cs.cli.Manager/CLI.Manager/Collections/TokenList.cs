@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Cobilas.CLI.Manager; 
+namespace Cobilas.CLI.Manager.Collections; 
 public class TokenList : IEnumerable<KeyValuePair<string, long>>, IDisposable {
 	private readonly List<KeyValuePair<string, long>> list;
 

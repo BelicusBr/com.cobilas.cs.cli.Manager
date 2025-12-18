@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Cobilas.CLI.Manager.Exceptions;
+using Cobilas.CLI.Manager.Collections;
 
 namespace Cobilas.CLI.Manager;
 
@@ -16,17 +17,13 @@ public static class CLIParse {
 	public static void AddToken(long tokenID, string? ntoken) {
 		ExceptionMessages.ThrowIfNullOrEmpty(ntoken, nameof(ntoken));
 
-#pragma warning disable CS8604 // Possível argumento de referência nula.
 		_tokens.Add(ntoken, tokenID);
-#pragma warning restore CS8604 // Possível argumento de referência nula.
 	}
 
 	public static void AddToken(long tokenID, params string?[]? ntoken) {
 		ExceptionMessages.ThrowIfNull(ntoken, nameof(ntoken));
 
-#pragma warning disable CS8602 // Desreferência de uma referência possivelmente nula.
 		foreach (string? item in ntoken)
-#pragma warning restore CS8602 // Desreferência de uma referência possivelmente nula.
 			AddToken(tokenID, item);
 	}
 
@@ -36,9 +33,7 @@ public static class CLIParse {
 		Analysis ??= IAnalysis;
 		TokenList tokens = [];
 		TokenListReadOnly read = new(_tokens);
-#pragma warning disable CS8602 // Desreferência de uma referência possivelmente nula.
 		foreach (string item in args) {
-#pragma warning restore CS8602 // Desreferência de uma referência possivelmente nula.
 			KeyValuePair<string, long> temp = Analysis(read, item);
 
 			if (Rule is not null)

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="com.cobilas.cs.cli.manager.test/com.cobilas.cs.cli.manager.test.csproj" />
+  <Project Path="com.cobilas.cs.cli.manager/com.cobilas.cs.cli.manager.csproj" />
+</Solution>

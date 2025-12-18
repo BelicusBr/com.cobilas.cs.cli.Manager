@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cobilas.CLI.Manager.Exceptions; 
+
 public static class ExceptionMessages {
-	public static void ThrowIfNull(object? argument, string? paramName = null) {
+	public static void ThrowIfNull([NotNull]object? argument, string? paramName = null) {
 #if NET7_0_OR_GREATER
 		ArgumentNullException.ThrowIfNull(argument, paramName);
 #else
@@ -11,7 +13,7 @@ public static class ExceptionMessages {
 #endif
 	}
 
-	public static void ThrowIfNullOrEmpty(string? argument, string? paramName = null) {
+	public static void ThrowIfNullOrEmpty([NotNull]string? argument, string? paramName = null) {
 #if NET7_0_OR_GREATER
 		ArgumentNullException.ThrowIfNullOrEmpty(argument, paramName);
 #else
