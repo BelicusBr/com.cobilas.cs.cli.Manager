@@ -1,62 +1,62 @@
 ﻿using System;
 using Cobilas.CLI.Manager;
-using Cobilas.CLI.Manager.Collections;
-using Cobilas.CLI.Manager.Exceptions;
+using System.Collections.Generic;
 
 internal class Program {
-	/*
-	remove/-r arg
-	add/-a arg 
-	add/-a arg --index/--i arg
-	 */
+
 	private static void Main(string[] args) {
-
-		TokenExecutor removeF = new();
-		TokenExecutor addF = new();
-
-		removeF.AddTokenInfo("remove/-r", 1, (long)CLIToken.Function);
-		addF.AddTokenInfo("add/-a", 1, (long)CLIToken.Function);
-		addF.AddTokenInfo("--index/--i", 1, (long)CLIToken.Option);
-
 		Console.WriteLine("Program.Main");
-		CLIParse.IsAutoException = true;
-		CLIParse.Rule = (c, t) => {
-			InfoTokenData data = (InfoTokenData)c;
-			if (t.Value == (long)CLIToken.Function) {
-				object? funcC = data["funcC"];
-				if (funcC == null) data["funcC"] = 1L;
-				else if ((long)funcC == 1) {
-					data.Exception = new InvalidCLIFunctionException();
-					return true; 
-				}
-			} else if (t.Value == (long)CLIToken.Option) {
-				object? funcC = data["funcC"];
-				if (funcC is null || (long)funcC == 0) {
-					data.Exception = new InvalidCLIOptionException();
-					return true;
-				}
-			}
-			return false;
-		};
 
-		AddToken();
+		CLIParse.AddToken((long)CLIToken.Option, "--index", "--i");
+		CLIParse.AddToken((long)CLIToken.Function, "remove", "-r", "add", "-a");
 
-		TokenList l = CLIParse.Parse(args);
+		List<KeyValuePair<string, long>> l = CLIParse.Parse(args);
 
 		foreach (var item in l)
-		{
 			Console.WriteLine($"[{item.Key}, {(CLIToken)item.Value}]");
-		}
 
-		addF.Invok(l, (t, d, i) => {
+		RemoveFunc remove = new("remove/-r",
+				new Arg()
+			);
+	}
+}
+
+readonly struct RemoveFunc(string alias, params IOption[] options) : IFunction
+{
+	private readonly string alias = alias;
+	private readonly List<IOption> options = [.. options];
+
+	public string Alias => alias;
+	public List<IOption> Options => options;
+
+	public bool IsAlias(string alias) {
+		foreach (var item in alias.Split('/', StringSplitOptions.RemoveEmptyEntries))
+			if (alias == item)
+				return true;
+		return false;
+	}
+
+	public void Funct(List<KeyValuePair<string, long>> l) {
+		for (int I = 0; I < l.Count; I++) {
 			
-		});
+		}
 	}
+}
 
-	private static void AddToken() {
+readonly struct Arg : IOption {
+	public string Alias => "{ARG}";
 
-		CLIParse.AddToken((long)CLIToken.Function, "remove", "-r", "add", "-a");
-		CLIParse.AddToken((long)CLIToken.Option, "--index", "--i");
+	public bool IsAlias(string alias) => alias == Alias;
+}
 
-	}
+interface IAlias {
+	string Alias { get; }
+	bool IsAlias(string alias);
+}
+
+interface IFunction : IAlias {
+	List<IOption> Options { get; }
+}
+
+interface IOption : IAlias {
 }
