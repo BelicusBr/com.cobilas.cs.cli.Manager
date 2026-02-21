@@ -1,6 +1,7 @@
 ﻿using System;
 using Cobilas.CLI.Manager;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 internal class Program {
 
@@ -21,13 +22,42 @@ internal class Program {
 	}
 }
 
-readonly struct RemoveFunc(string alias, params IOption[] options) : IFunction
+
+
+readonly struct CLIKey(string alias) : IEquatable<string> {
+	private readonly string[] alias = alias.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+	public bool Equals(string? other) {
+		if (other is null) return false;
+		foreach (string item in alias)
+			if (item == other)
+				return true;
+		return false;
+	}
+
+	public override bool Equals([NotNullWhen(true)] object? obj)
+		=> obj is string stg && Equals(stg);
+
+	public override int GetHashCode() => base.GetHashCode();
+
+	public static bool operator ==(CLIKey k, string s) => k.Equals(s);
+	public static bool operator !=(CLIKey k, string s) => !k.Equals(s);
+	public static bool operator ==(string s, CLIKey k) => k.Equals(s);
+	public static bool operator !=(string s, CLIKey k) => !k.Equals(s);
+
+	public static implicit operator CLIKey(string stg) => new(stg);
+	public static implicit operator string(CLIKey key) => string.Join('/', key.alias);
+}
+
+readonly struct RemoveFunc(string alias, params IOptionFunc[] options) : IFunction
 {
 	private readonly string alias = alias;
-	private readonly List<IOption> options = [.. options];
+	private readonly List<IOptionFunc> options = [.. options];
 
 	public string Alias => alias;
-	public List<IOption> Options => options;
+	public List<IOptionFunc> Options => options;
+
+	public long TypeCode => throw new NotImplementedException();
 
 	public bool IsAlias(string alias) {
 		foreach (var item in alias.Split('/', StringSplitOptions.RemoveEmptyEntries))
@@ -43,20 +73,47 @@ readonly struct RemoveFunc(string alias, params IOption[] options) : IFunction
 	}
 }
 
-readonly struct Arg : IOption {
-	public string Alias => "{ARG}";
+readonly struct Arg(bool mandatory, string alias) : IArgument {
+	private readonly CLIKey alias = alias;
+	private readonly bool mandatory = mandatory;
 
-	public bool IsAlias(string alias) => alias == Alias;
+	public string Alias => alias;
+	public bool Mandatory => mandatory;
+	public long TypeCode => CLIParse.ArgumentCode;
+	public KeyValuePair<CLIKey, string> DefaultValue => throw new NotImplementedException();
+
+	public Arg(string alias) : this(false, alias) { }
+
+	public void ExceptionMessage(out string msm)
+	{
+		throw new NotImplementedException();
+	}
+
+	public bool IsAlias(string alias) => alias == this.alias;
+
+	public KeyValuePair<CLIKey, string> TreatedValue(KeyValuePair<string, long> value)
+		=> new(alias, value.Key);
 }
 
 interface IAlias {
 	string Alias { get; }
+	long TypeCode { get; }
 	bool IsAlias(string alias);
 }
 
 interface IFunction : IAlias {
-	List<IOption> Options { get; }
+	List<IOptionFunc> Options { get; }
 }
 
-interface IOption : IAlias {
+interface IOptionFunc : IAlias {
+	bool Mandatory { get; }
+	KeyValuePair<CLIKey, string> DefaultValue { get; }
+	void ExceptionMessage(out string msm);
+	KeyValuePair<CLIKey, string> TreatedValue(KeyValuePair<string, long> value);
 }
+
+interface IOption : IOptionFunc {
+	List<IArgument> Options { get; }
+}
+
+interface IArgument : IOptionFunc { }
