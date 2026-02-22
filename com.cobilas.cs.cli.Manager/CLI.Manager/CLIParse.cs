@@ -6,6 +6,8 @@ namespace Cobilas.CLI.Manager;
 public static class CLIParse {
 	private static readonly Dictionary<string, long> _tokens = [];
 
+	public static long ArgumentCode { get; set; } = (long)CLIToken.Argument;
+
 	public static void AddToken(long tokenID, string? ntoken) {
 		ExceptionMessages.ThrowIfNullOrEmpty(ntoken, nameof(ntoken));
 

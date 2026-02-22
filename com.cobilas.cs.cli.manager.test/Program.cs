@@ -8,6 +8,7 @@ internal class Program {
 	private static void Main(string[] args) {
 		Console.WriteLine("Program.Main");
 
+		CLIParse.ArgumentCode = (long)CLIToken.Argument;
 		CLIParse.AddToken((long)CLIToken.Option, "--index", "--i");
 		CLIParse.AddToken((long)CLIToken.Function, "remove", "-r", "add", "-a");
 
@@ -17,15 +18,43 @@ internal class Program {
 			Console.WriteLine($"[{item.Key}, {(CLIToken)item.Value}]");
 
 		RemoveFunc remove = new("remove/-r",
-				new Arg()
+				new Arg(true, "arg1/{ARG}")
 			);
+
+		remove.Funct(l, out string msm);
+		Console.WriteLine($"msm:{msm}");
+		foreach (KeyValuePair<CLIKey, string> item in remove.ValueOrder)
+			Console.WriteLine(item);
 	}
 }
 
+readonly struct CLIKeyValue<TKey, TValue>(TKey key, TValue value) : 
+	IEquatable<CLIKeyValue<TKey, TValue>> {
+	private readonly TKey key = key;
+	private readonly TValue value = value;
 
+	public TKey Key => key;
+	public TValue Value => value;
 
-readonly struct CLIKey(string alias) : IEquatable<string> {
+	public bool Equals(CLIKeyValue<TKey, TValue> other)
+		=> EqualityComparer<TKey>.Default.Equals(key, other.key) &&
+		EqualityComparer<TValue>.Default.Equals(value, other.value);
+
+	public override bool Equals([NotNullWhen(true)] object? obj)
+		=> obj is CLIKeyValue<TKey, TValue> ckv && Equals(ckv);
+
+	public override int GetHashCode() => base.GetHashCode();
+
+	public override string ToString() => $"[{key}, {value}]";
+
+	public static bool operator ==(CLIKeyValue<TKey, TValue> A, CLIKeyValue<TKey, TValue> B) => A.Equals(B);
+	public static bool operator !=(CLIKeyValue<TKey, TValue> A, CLIKeyValue<TKey, TValue> B) => !A.Equals(B);
+}
+
+readonly struct CLIKey(string alias) : IEquatable<string>, IEquatable<CLIKey> {
 	private readonly string[] alias = alias.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+	public static CLIKeyValue<CLIKey, string> Empty => new(string.Empty, string.Empty);
 
 	public bool Equals(string? other) {
 		if (other is null) return false;
@@ -36,9 +65,21 @@ readonly struct CLIKey(string alias) : IEquatable<string> {
 	}
 
 	public override bool Equals([NotNullWhen(true)] object? obj)
-		=> obj is string stg && Equals(stg);
+		=> (obj is string stg && Equals(stg)) || (obj is CLIKey k && Equals(k));
 
 	public override int GetHashCode() => base.GetHashCode();
+
+	public bool Equals(CLIKey other) {
+		foreach (string item in other.alias)
+			if (Equals(item))
+				return true;
+		return false;
+	}
+
+	public override string ToString() => (string)this;
+
+	public static bool operator ==(CLIKey k1, CLIKey k2) => k1.Equals(k2);
+	public static bool operator !=(CLIKey k1, CLIKey k2) => !k1.Equals(k2);
 
 	public static bool operator ==(CLIKey k, string s) => k.Equals(s);
 	public static bool operator !=(CLIKey k, string s) => !k.Equals(s);
@@ -49,13 +90,14 @@ readonly struct CLIKey(string alias) : IEquatable<string> {
 	public static implicit operator string(CLIKey key) => string.Join('/', key.alias);
 }
 
-readonly struct RemoveFunc(string alias, params IOptionFunc[] options) : IFunction
-{
+readonly struct RemoveFunc(string alias, params IOptionFunc[] options) : IFunction {
 	private readonly string alias = alias;
 	private readonly List<IOptionFunc> options = [.. options];
+	private readonly Dictionary<CLIKey, string> valueOrder = [];
 
 	public string Alias => alias;
 	public List<IOptionFunc> Options => options;
+	public Dictionary<CLIKey, string> ValueOrder => valueOrder;
 
 	public long TypeCode => throw new NotImplementedException();
 
@@ -66,9 +108,28 @@ readonly struct RemoveFunc(string alias, params IOptionFunc[] options) : IFuncti
 		return false;
 	}
 
-	public void Funct(List<KeyValuePair<string, long>> l) {
-		for (int I = 0; I < l.Count; I++) {
-			
+	public void Funct(List<KeyValuePair<string, long>> l, out string msm) {
+		msm = string.Empty;
+		for (int I = 0, C = 1; I < options.Count; I++) {
+			IOptionFunc of = options[I];
+			KeyValuePair<string, long> t = l[C];
+
+			CLIKeyValue<CLIKey, string> temp = CLIKey.Empty;
+			if (of.TypeCode == t.Value) {
+				if (of.IsAlias(t.Key) || of.IsAlias("{ARG}")) temp = of.TreatedValue(t);
+				if (temp != CLIKey.Empty) {
+					valueOrder.Add(temp.Key, temp.Value);
+					C++;
+				}
+			} else {
+				if (of.Mandatory) {
+					of.ExceptionMessage(out msm);
+					break;
+				} else {
+					temp = of.DefaultValue;
+					valueOrder.Add(temp.Key, temp.Value);
+				}
+			}
 		}
 	}
 }
@@ -80,18 +141,17 @@ readonly struct Arg(bool mandatory, string alias) : IArgument {
 	public string Alias => alias;
 	public bool Mandatory => mandatory;
 	public long TypeCode => CLIParse.ArgumentCode;
-	public KeyValuePair<CLIKey, string> DefaultValue => throw new NotImplementedException();
+	public CLIKeyValue<CLIKey, string> DefaultValue => throw new NotImplementedException();
 
 	public Arg(string alias) : this(false, alias) { }
 
-	public void ExceptionMessage(out string msm)
-	{
-		throw new NotImplementedException();
+	public void ExceptionMessage(out string msm) {
+		msm = "Arg invalido!!!";
 	}
 
 	public bool IsAlias(string alias) => alias == this.alias;
 
-	public KeyValuePair<CLIKey, string> TreatedValue(KeyValuePair<string, long> value)
+	public CLIKeyValue<CLIKey, string> TreatedValue(KeyValuePair<string, long> value)
 		=> new(alias, value.Key);
 }
 
@@ -107,9 +167,9 @@ interface IFunction : IAlias {
 
 interface IOptionFunc : IAlias {
 	bool Mandatory { get; }
-	KeyValuePair<CLIKey, string> DefaultValue { get; }
+	CLIKeyValue<CLIKey, string> DefaultValue { get; }
 	void ExceptionMessage(out string msm);
-	KeyValuePair<CLIKey, string> TreatedValue(KeyValuePair<string, long> value);
+	CLIKeyValue<CLIKey, string> TreatedValue(KeyValuePair<string, long> value);
 }
 
 interface IOption : IOptionFunc {
