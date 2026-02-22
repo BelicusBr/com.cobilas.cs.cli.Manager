@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Cobilas.CLI.Manager.Exceptions;
 
 namespace Cobilas.CLI.Manager;
@@ -6,6 +7,7 @@ namespace Cobilas.CLI.Manager;
 public static class CLIParse {
 	private static readonly Dictionary<string, long> _tokens = [];
 
+	public static long EndCode { get; set; } = (long)CLIToken.EndCode;
 	public static long ArgumentCode { get; set; } = (long)CLIToken.Argument;
 
 	public static void AddToken(long tokenID, string? ntoken) {

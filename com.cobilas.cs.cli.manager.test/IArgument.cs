@@ -1,0 +1,1 @@
+﻿interface IArgument : IOptionFunc { }

@@ -6,6 +6,11 @@ namespace System.Collections.Generic;
 
 internal static class DictionaryExtension {
 
+	public static void Add<key, value>(this Dictionary<key, value>? d, KeyValuePair<key, value> item) {
+		ExceptionMessages.ThrowIfNull(d);
+		d.Add(item.Key, item.Value);
+	}
+
 	public static KeyValuePair<key, value> Find<key, value>(this Dictionary<key, value>? d, Predicate<key>? predicate) {
 		ExceptionMessages.ThrowIfNull(d);
 		ExceptionMessages.ThrowIfNull(predicate);
