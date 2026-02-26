@@ -1,35 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
+using Cobilas.CLI.Manager.Exceptions;
 using Cobilas.CLI.Manager.Interfaces;
 
 namespace Cobilas.CLI.Manager;
-
-public readonly struct DefaultFunction(
-	string alias,
-	Action<CLIKey, CLIValueOrder> runFunction,
-	params IOptionFunc[] options) : IFunction {
+/// <summary>
+/// Represents a default implementation of a CLI function.
+/// This structure aggregates a collection of options, manages a value order,
+/// and executes a registered delegate when invoked.
+/// </summary>
+/// <param name="alias">The primary alias for the function. Cannot be null or empty.</param>
+/// <param name="idRunFunction">The identifier of a function registered in <see cref="CLIParse"/> that accepts a <see cref="CLIKey"/> and an optional <see cref="CLIValueOrder"/>.</param>
+/// <param name="options">An array of option functions that belong to this function.</param>
+/// <exception cref="ArgumentNullException">Thrown when <paramref name="alias"/> is null.</exception>
+public readonly struct DefaultFunction(string alias, uint idRunFunction, params IOptionFunc[] options) : IFunction {
 	private readonly CLIKey alias = alias;
 	private readonly List<IOptionFunc> options = [.. options];
 	private readonly CLIValueOrder valueOrder = [];
-	private readonly Action<CLIKey, CLIValueOrder> runFunction = runFunction;
+	private readonly Action<CLIKey, CLIValueOrder?> runFunction = CLIParse.GetFunction<Action<CLIKey, CLIValueOrder?>>(idRunFunction);
 
+	/// <summary>
+	/// Gets the string representation of the alias.
+	/// </summary>
+	/// <returns>The alias string.</returns>
 	public string Alias => alias;
+	/// <summary>
+	/// Gets the list of option functions associated with this function.
+	/// </summary>
+	/// <returns>A list of <see cref="IOptionFunc"/> objects.</returns>
 	public List<IOptionFunc> Options => options;
-	public long TypeCode => (long)CLIToken.Function;
+	/// <summary>
+	/// Gets the type code for this function, which is <see cref="CLIDefaultToken.Function"/>.
+	/// </summary>
+	/// <returns>The numeric type code.</returns>
+	public long TypeCode => (long)CLIDefaultToken.Function;
+	/// <summary>
+	/// Gets the value order that collects the processed values from options and arguments.
+	/// </summary>
+	/// <returns>The <see cref="CLIValueOrder"/> instance.</returns>
 	public CLIValueOrder ValueOrder => valueOrder;
-
-	public DefaultFunction(string alias, params IOptionFunc[] options) :
-		this(alias, null, options)
-	{ }
-
-	public bool IsAlias(string alias) {
-		foreach (string item in alias.Split(CLIKey.separator, StringSplitOptions.RemoveEmptyEntries))
-			if (this.alias == item)
-				return true;
+	/// <inheritdoc/>
+	public bool IsAlias(string? alias) {
+		if (alias is not null)
+			foreach (string item in alias.Split(CLIKey.separator, StringSplitOptions.RemoveEmptyEntries))
+				if (this.alias == item)
+					return true;
 		return false;
 	}
+	/// <inheritdoc/>
+	public bool GetValues(TokenList? list, ErrorMessage? message) {
+		ExceptionMessages.ThrowIfNull(list, nameof(list));
+		ExceptionMessages.ThrowIfNull(message, nameof(message));
 
-	public bool GetValues(TokenList list, ErrorMessage message) {
 		for (int I = 0; I < options.Count; I++) {
 			IOptionFunc of = options[I];
 			if (of.TypeCode == list.CurrentValue) {
@@ -41,19 +63,23 @@ public readonly struct DefaultFunction(
 				if (of.Mandatory) {
 					of.ExceptionMessage(list.Current, message);
 					return true;
-				} else {
-					of.DefaultValue(valueOrder);
-				}
+				} else of.DefaultValue(valueOrder);
 			}
 		}
 		return false;
 	}
-
+	/// <inheritdoc/>
 	public void Run() => runFunction(alias, valueOrder);
+	/// <inheritdoc/>
+	public void Run(Action<CLIKey, CLIValueOrder?>? action) {
+		ExceptionMessages.ThrowIfNull(action, nameof(action));
+		action(alias, valueOrder);
+	}
+	/// <inheritdoc/>
+	public bool Analyzer(TokenList? list, ErrorMessage? message) {
+		ExceptionMessages.ThrowIfNull(list, nameof(list));
+		ExceptionMessages.ThrowIfNull(message, nameof(message));
 
-	public void Run(Action<CLIKey, CLIValueOrder> action) => action(alias, valueOrder);
-
-	public bool Analyzer(TokenList list, ErrorMessage message) {
 		list.Move();
 		foreach (IOptionFunc item in options)
 			if (item.Analyzer(list, message))

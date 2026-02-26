@@ -1,42 +1,60 @@
 ﻿using System;
+using System.IO;
 using Cobilas.CLI.Manager;
 using System.Collections.Generic;
-using System.IO;
 using Cobilas.CLI.Manager.Interfaces;
 
 internal partial class Program {
 
 	private static readonly IFunction[] functions = [
 		new DefaultFunction(
-				"remove/-r",
-				func_switch,
-				new DefaultArgument(true, $"arg1/{{ARG}}/{nameof(CLIToken.Argument)}", (d)=>{ })
-			)
+			"remove/-r", 1,
+			new DefaultArgument(true, $"arg1/{{ARG}}/{nameof(CLIDefaultToken.Argument)}", 2)
+		),
+		new DefaultFunction(
+			"create/-c", 2,
+			new DefaultArgument(true, $"arg1/{{ARG}}/{nameof(CLIDefaultToken.Argument)}", 2)
+		)
 	];
 
-	private static void func_switch(CLIKey key, CLIValueOrder valueOrder) {
+	private static void remove_func(CLIKey key, CLIValueOrder valueOrder) {
 		Console.WriteLine($"Run({key})");
 		if (key == "remove" || key == "-r") {
 			string path = Environment.CurrentDirectory;
 			path = Path.Combine(path, valueOrder["arg1"]);
-			Console.WriteLine(path);
-			File.Delete(path);
+			if (File.Exists(path)) { 
+				Console.WriteLine(path);
+				File.Delete(path);
+			} else Console.WriteLine($"No-exit:{path}");
 		}
 	}
+
+	private static void create_func(CLIKey key, CLIValueOrder valueOrder) {
+		Console.WriteLine($"Run({key})");
+		if (key == "create" || key == "-c") {
+			string path = Environment.CurrentDirectory;
+			path = Path.Combine(path, valueOrder["arg1"]);
+			if (!File.Exists(path)) {
+				Console.WriteLine(path);
+				File.Create(path).Dispose();
+			}
+			else Console.WriteLine($"No-exit:{path}");
+		}
+	}
+
+	private static void defValueEmpty(CLIValueOrder valueOrder) { }
 
 	private static void Main(string[] args) {
 		Console.WriteLine("Program.Main");
 		Console.WriteLine("Inicializado!");
 
-		CLIParse.AddToken((long)CLIToken.Option, "--index", "--i");
-		CLIParse.AddToken((long)CLIToken.Function, "remove", "-r", "add", "-a");
+		CLIParse.AddFunction(1, remove_func);
+		CLIParse.AddFunction(2, create_func);
+		CLIParse.AddFunction(3, defValueEmpty);
+
+		CLIParse.AddToken((long)CLIDefaultToken.Function, "remove", "-r", "create", "-c");
 
 		List<KeyValuePair<string, long>> l = CLIParse.Parse(args);
-
-		Console.WriteLine("Token list:");
-		foreach (var item in l)
-			Console.WriteLine($"[{item.Key}, {(CLIToken)item.Value}]");
-		Console.WriteLine("\r\n");
 
 		TokenList list = new(l);
 		ErrorMessage message = ErrorMessage.Default;
@@ -55,9 +73,6 @@ internal partial class Program {
 					Console.WriteLine($"msm:\r\n{message}");
 					return;
 				}
-				Console.WriteLine("Value Order:");
-				foreach (KeyValuePair<CLIKey, string> item1 in ((DefaultFunction)item).ValueOrder)
-					Console.WriteLine(item1);
 				item.Run();
 				break;
 			}
