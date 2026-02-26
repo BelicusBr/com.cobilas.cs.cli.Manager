@@ -2,7 +2,9 @@
 using System.Linq;
 using System.Collections.Generic;
 
-class TokenList : IDisposable {
+namespace Cobilas.CLI.Manager;
+
+public class TokenList : IDisposable {
 	private int index;
 	private bool disposedValue;
 	private KeyValuePair<string, long>[] list;
@@ -44,7 +46,7 @@ class TokenList : IDisposable {
 	protected virtual void Dispose(bool disposing) {
 		if (!disposedValue) {
 			if (disposing) {
-				Array.Clear(list);
+				Array.Clear(list, 0, Count);
 				list = null;
 			}
 			disposedValue = true;

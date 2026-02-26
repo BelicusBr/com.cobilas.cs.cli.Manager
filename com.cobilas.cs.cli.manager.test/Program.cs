@@ -1,17 +1,28 @@
 ﻿using System;
 using Cobilas.CLI.Manager;
 using System.Collections.Generic;
+using System.IO;
+using Cobilas.CLI.Manager.Interfaces;
 
-internal class Program {
+internal partial class Program {
 
 	private static readonly IFunction[] functions = [
-		new DefaultFunction("remove/-r",
-				new DefaultArgument(true, $"arg1/{{ARG}}/{nameof(CLIToken.Argument)}")
-			),
-		new DefaultFunction("add/-a"
-				
+		new DefaultFunction(
+				"remove/-r",
+				func_switch,
+				new DefaultArgument(true, $"arg1/{{ARG}}/{nameof(CLIToken.Argument)}", (d)=>{ })
 			)
 	];
+
+	private static void func_switch(CLIKey key, CLIValueOrder valueOrder) {
+		Console.WriteLine($"Run({key})");
+		if (key == "remove" || key == "-r") {
+			string path = Environment.CurrentDirectory;
+			path = Path.Combine(path, valueOrder["arg1"]);
+			Console.WriteLine(path);
+			File.Delete(path);
+		}
+	}
 
 	private static void Main(string[] args) {
 		Console.WriteLine("Program.Main");
@@ -47,6 +58,7 @@ internal class Program {
 				Console.WriteLine("Value Order:");
 				foreach (KeyValuePair<CLIKey, string> item1 in ((DefaultFunction)item).ValueOrder)
 					Console.WriteLine(item1);
+				item.Run();
 				break;
 			}
 		}

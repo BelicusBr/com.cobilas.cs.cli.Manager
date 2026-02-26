@@ -1,12 +1,14 @@
 ﻿using System;
-using Cobilas.CLI.Manager;
 using System.Collections.Generic;
+using Cobilas.CLI.Manager.Interfaces;
+
+namespace Cobilas.CLI.Manager;
 
 readonly struct DefaultOption(
-	string alias, 
-	bool mandatory, 
+	string alias,
+	bool mandatory,
 	Func<int, string> argName,
-	Action<Dictionary<CLIKey, string>> defaultValue,
+	Action<CLIValueOrder> defaultValue,
 	params IArgument[] arguments) : IOption {
 	private readonly CLIKey alias = alias;
 	private readonly bool mandatory = mandatory;
@@ -42,13 +44,13 @@ readonly struct DefaultOption(
 	}
 
 	public bool IsAlias(string alias) {
-		foreach (string item in alias.Split('/', StringSplitOptions.RemoveEmptyEntries))
+		foreach (string item in alias.Split(CLIKey.separator, StringSplitOptions.RemoveEmptyEntries))
 			if (this.alias == item)
 				return true;
 		return false;
 	}
 
-	public void TreatedValue(Dictionary<CLIKey, string> valueOrder, TokenList list) {
+	public void TreatedValue(CLIValueOrder valueOrder, TokenList list) {
 		for (int I = 0; I < options.Count; I++) {
 			KeyValuePair<string, long> temp = list.GetValueAndMove;
 			string name = argName(I);
@@ -56,5 +58,5 @@ readonly struct DefaultOption(
 		}
 	}
 
-	public void DefaultValue(Dictionary<CLIKey, string> valueOrder) => defaultValue(valueOrder);
+	public void DefaultValue(CLIValueOrder valueOrder) => defaultValue(valueOrder);
 }

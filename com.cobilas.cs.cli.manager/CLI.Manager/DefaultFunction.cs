@@ -1,26 +1,29 @@
 ﻿using System;
-using Cobilas.CLI.Manager;
 using System.Collections.Generic;
+using Cobilas.CLI.Manager.Interfaces;
 
-readonly struct DefaultFunction(
-	string alias, 
-	Action<CLIKey, Dictionary<CLIKey, string>> runFunction, 
+namespace Cobilas.CLI.Manager;
+
+public readonly struct DefaultFunction(
+	string alias,
+	Action<CLIKey, CLIValueOrder> runFunction,
 	params IOptionFunc[] options) : IFunction {
 	private readonly CLIKey alias = alias;
 	private readonly List<IOptionFunc> options = [.. options];
-	private readonly Dictionary<CLIKey, string> valueOrder = [];
-	private readonly Action<CLIKey, Dictionary<CLIKey, string>> runFunction = runFunction;
+	private readonly CLIValueOrder valueOrder = [];
+	private readonly Action<CLIKey, CLIValueOrder> runFunction = runFunction;
 
 	public string Alias => alias;
 	public List<IOptionFunc> Options => options;
 	public long TypeCode => (long)CLIToken.Function;
-	public Dictionary<CLIKey, string> ValueOrder => valueOrder;
+	public CLIValueOrder ValueOrder => valueOrder;
 
 	public DefaultFunction(string alias, params IOptionFunc[] options) :
-		this(alias, null, options) { }
+		this(alias, null, options)
+	{ }
 
 	public bool IsAlias(string alias) {
-		foreach (string item in alias.Split('/', StringSplitOptions.RemoveEmptyEntries))
+		foreach (string item in alias.Split(CLIKey.separator, StringSplitOptions.RemoveEmptyEntries))
 			if (this.alias == item)
 				return true;
 		return false;
@@ -30,8 +33,8 @@ readonly struct DefaultFunction(
 		for (int I = 0; I < options.Count; I++) {
 			IOptionFunc of = options[I];
 			if (of.TypeCode == list.CurrentValue) {
-				if (of.IsAlias(list.CurrentKey) || of.IsAlias("{ARG}")) { 
-					of.TreatedValue(valueOrder, list); 
+				if (of.IsAlias(list.CurrentKey) || of.IsAlias("{ARG}")) {
+					of.TreatedValue(valueOrder, list);
 					list.Move();
 				}
 			} else {
@@ -48,7 +51,7 @@ readonly struct DefaultFunction(
 
 	public void Run() => runFunction(alias, valueOrder);
 
-	public void Run(Action<CLIKey, Dictionary<CLIKey, string>> action) => action(alias, valueOrder);
+	public void Run(Action<CLIKey, CLIValueOrder> action) => action(alias, valueOrder);
 
 	public bool Analyzer(TokenList list, ErrorMessage message) {
 		list.Move();

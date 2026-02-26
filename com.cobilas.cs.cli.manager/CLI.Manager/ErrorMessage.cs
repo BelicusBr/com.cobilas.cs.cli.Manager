@@ -1,6 +1,8 @@
 ﻿using System;
 
-class ErrorMessage {
+namespace Cobilas.CLI.Manager;
+
+public sealed class ErrorMessage {
 	public int ErroCode { get; set; }
 	public string Message { get; set; }
 	public Guid Id { get; private set; }

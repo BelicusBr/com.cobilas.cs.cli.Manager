@@ -1,9 +1,11 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 
-readonly struct CLIKey(string alias) : IEquatable<string>, IEquatable<CLIKey> {
-	private readonly string[] alias = alias.Split('/', StringSplitOptions.RemoveEmptyEntries);
+namespace Cobilas.CLI.Manager;
 
+public readonly struct CLIKey(string alias) : IEquatable<string>, IEquatable<CLIKey> {
+	private readonly string[] alias = alias.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+
+	public static readonly char[] separator = ['/'];
 	public static CLIKeyValue<CLIKey, string> Empty => new(string.Empty, string.Empty);
 
 	public bool Equals(string? other) {
@@ -14,8 +16,8 @@ readonly struct CLIKey(string alias) : IEquatable<string>, IEquatable<CLIKey> {
 		return false;
 	}
 
-	public override bool Equals([NotNullWhen(true)] object? obj)
-		=> (obj is string stg && Equals(stg)) || (obj is CLIKey k && Equals(k));
+	public override bool Equals(object? obj)
+		=> obj is string stg && Equals(stg) || obj is CLIKey k && Equals(k);
 
 	public override int GetHashCode() => base.GetHashCode();
 
@@ -37,5 +39,5 @@ readonly struct CLIKey(string alias) : IEquatable<string>, IEquatable<CLIKey> {
 	public static bool operator !=(string s, CLIKey k) => !k.Equals(s);
 
 	public static implicit operator CLIKey(string stg) => new(stg);
-	public static implicit operator string(CLIKey key) => string.Join('/', key.alias);
+	public static implicit operator string(CLIKey key) => string.Join("/", key.alias);
 }

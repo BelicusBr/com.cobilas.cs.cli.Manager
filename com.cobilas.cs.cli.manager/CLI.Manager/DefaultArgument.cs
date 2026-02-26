@@ -1,8 +1,10 @@
 ﻿using System;
-using Cobilas.CLI.Manager;
 using System.Collections.Generic;
+using Cobilas.CLI.Manager.Interfaces;
 
-readonly struct DefaultArgument(bool mandatory, string alias, Action<Dictionary<CLIKey, string>> defaultValue) : IArgument {
+namespace Cobilas.CLI.Manager;
+
+public readonly struct DefaultArgument(bool mandatory, string alias, Action<CLIValueOrder> defaultValue) : IArgument {
 	private readonly CLIKey alias = alias;
 	private readonly bool mandatory = mandatory;
 
@@ -10,7 +12,7 @@ readonly struct DefaultArgument(bool mandatory, string alias, Action<Dictionary<
 	public bool Mandatory => mandatory;
 	public long TypeCode => CLIParse.ArgumentCode;
 
-	public DefaultArgument(string alias, Action<Dictionary<CLIKey, string>> defaultValue) : this(false, alias, defaultValue) { }
+	public DefaultArgument(string alias, Action<CLIValueOrder> defaultValue) : this(false, alias, defaultValue) { }
 
 	public void ExceptionMessage(KeyValuePair<string, long> value, ErrorMessage message) {
 		if (value.Value != TypeCode) {
@@ -33,8 +35,8 @@ readonly struct DefaultArgument(bool mandatory, string alias, Action<Dictionary<
 		return false;
 	}
 
-	public void TreatedValue(Dictionary<CLIKey, string> valueOrder, TokenList list)
+	public void TreatedValue(CLIValueOrder valueOrder, TokenList list)
 		=> valueOrder.Add(Alias, list.CurrentKey);
 
-	public void DefaultValue(Dictionary<CLIKey, string> valueOrder) => defaultValue(valueOrder);
+	public void DefaultValue(CLIValueOrder valueOrder) => defaultValue(valueOrder);
 }
