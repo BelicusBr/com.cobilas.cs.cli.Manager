@@ -43,7 +43,10 @@ public readonly struct DefaultArgument(bool mandatory, string? alias, uint idDef
 	public void ExceptionMessage(KeyValuePair<string, long> value, ErrorMessage? message) {
 		ExceptionMessages.ThrowIfNull(message, nameof(message));
 
-		if (value.Value != TypeCode) {
+		if (value.Value == (long)CLIDefaultToken.Function) {
+			message.ErroCode = 29;
+			message.Message = $"The element '({(CLIDefaultToken)value.Value})[{value.Key}]' is not an argument!!!";
+		} else if (value.Value != TypeCode) {
 			message.ErroCode = 35;
 			message.Message = $"The option '{value.Key}' was defined before the argument!!!";
 		} else {

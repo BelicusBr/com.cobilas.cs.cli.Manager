@@ -101,8 +101,7 @@ public readonly struct DefaultOption(
 					ExceptionMessage(list.Current, message);
 					return true;
 				}
-			}
-			else if (!IsAlias(list.CurrentKey))
+			} else if (!IsAlias(list.CurrentKey))
 				if (Mandatory) {
 					ExceptionMessage(list.Current, message);
 					return true;
@@ -117,8 +116,13 @@ public readonly struct DefaultOption(
 	/// <inheritdoc/>
 	public void ExceptionMessage(KeyValuePair<string, long> value, ErrorMessage? message) {
 		ExceptionMessages.ThrowIfNull(message, nameof(message));
-		message.ErroCode = 22;
-		message.Message = $"The element '({(CLIDefaultToken)value.Value}){value.Key}' is called before '({(CLIDefaultToken)TypeCode}){alias}'!!!";
+		if (value.Value == (long)CLIDefaultToken.Function) {
+			message.ErroCode = 27;
+			message.Message = $"The element '({(CLIDefaultToken)value.Value})[{value.Key}]' is not an option!!!";
+		} else {
+			message.ErroCode = 22;
+			message.Message = $"The element '({(CLIDefaultToken)value.Value}){value.Key}' is called before '({(CLIDefaultToken)TypeCode}){alias}'!!!";
+		}
 	}
 	/// <inheritdoc/>
 	public bool IsAlias(string? alias) {
