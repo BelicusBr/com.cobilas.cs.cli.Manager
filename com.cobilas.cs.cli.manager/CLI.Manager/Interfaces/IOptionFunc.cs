@@ -22,7 +22,7 @@ public interface IOptionFunc : IAlias, ICLIAnalyzer {
 	/// </summary>
 	/// <param name="valueOrder">The value order that defines how values should be treated. Can be null.</param>
 	/// <param name="list">The token list containing the raw values. Can be null.</param>
-	void TreatedValue(CLIValueOrder? valueOrder, TokenList list);
+	void TreatedValue(CLIValueOrder? valueOrder, TokenList? list);
 	/// <summary>
 	/// Generates an exception message for a specific key-value pair when an error occurs.
 	/// </summary>

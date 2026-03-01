@@ -11,8 +11,7 @@ internal partial class Program {
 		Console.WriteLine("Inicializado!");
 
 		//Add a function with an ID for the standard objects.
-		CLIParse.AddFunction(1, remove_func);
-		CLIParse.AddFunction(2, create_func);
+		CLIParse.AddFunction(1, cli_func);
 		CLIParse.AddFunction(3, defValueEmpty);
 
 		//Adds the functions recognized by the parser.
@@ -25,7 +24,7 @@ internal partial class Program {
 				new DefaultArgument(true, $"arg1/{{ARG}}/{nameof(CLIDefaultToken.Argument)}", 3)
 			),
 			new DefaultFunction(
-				"create/-c", 2,
+				"create/-c", 1,
 				new DefaultArgument(true, $"arg1/{{ARG}}/{nameof(CLIDefaultToken.Argument)}", 3)
 			)
 		];
@@ -63,8 +62,8 @@ internal partial class Program {
 		Console.WriteLine("Finalizado!");
 	}
 
-	private static void remove_func(CLIKey key, CLIValueOrder valueOrder) {
-		if (key == "remove" || key == "-r") {
+	private static void cli_func(CLIKey key, CLIValueOrder valueOrder) {
+		if (key == (CLIKey)"remove/-r") {
 			string path = Environment.CurrentDirectory;
 			path = Path.Combine(path, valueOrder["arg1"]!);
 			if (File.Exists(path)) {
@@ -72,10 +71,7 @@ internal partial class Program {
 				File.Delete(path);
 			} else Console.WriteLine($"No-exit:{path}");
 		}
-	}
-
-	private static void create_func(CLIKey key, CLIValueOrder valueOrder) {
-		if (key == "create" || key == "-c") {
+		if (key == (CLIKey)"create/-c") {
 			string path = Environment.CurrentDirectory;
 			path = Path.Combine(path, valueOrder["arg1"]!);
 			if (!File.Exists(path)) {
