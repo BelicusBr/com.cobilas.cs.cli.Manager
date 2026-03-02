@@ -18,7 +18,6 @@ public readonly struct DefaultFunction(string alias, uint idRunFunction, params 
 	private readonly List<IOptionFunc> options = [.. options];
 	private readonly CLIValueOrder valueOrder = [];
 	private readonly Action<CLIKey, CLIValueOrder?> runFunction = CLIParse.GetFunction<Action<CLIKey, CLIValueOrder?>>(idRunFunction);
-
 	/// <summary>
 	/// Gets the string representation of the alias.
 	/// </summary>
@@ -84,6 +83,16 @@ public readonly struct DefaultFunction(string alias, uint idRunFunction, params 
 		foreach (IOptionFunc item in options)
 			if (item.Analyzer(list, message))
 				return true;
+		if (list.CurrentValue != CLIParse.EndCode) {
+			if (list.CurrentValue == CLIParse.ArgumentCode) {
+				message.ErroCode = 74;
+				message.Message = $"The argument is not defined for the function ({alias})!";
+			} else if (list.CurrentValue == (long)CLIDefaultToken.Option) {
+				message.ErroCode = 75;
+				message.Message = $"The option ({list.CurrentKey}) is not defined for the function ({alias})!";
+			}
+			return true;
+		}
 		return false;
 	}
 }
