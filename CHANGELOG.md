@@ -1,4 +1,4 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [2.0.1] - (01/03/2026)
+- Added a check in DefaultFunction.Analyzer to detect whether the TokenList has reached the end‑of‑input marker (EndCode).
+- If the list still contains tokens after processing all defined options, the analyzer now returns an error with specific codes:
+- - Error code 74 – "The argument is not defined for the function ({alias})!"
+- - Error code 75 – "The option ({list.CurrentKey}) is not defined for the function ({alias})!"
+- Bumped package version to 2.0.1.
 
 ## [2.0.0-rc.16] - (28/02/2026)
 - Completely rewritten `README.md` with comprehensive English documentation, including installation, features, usage examples, API overview, and advanced topics.
