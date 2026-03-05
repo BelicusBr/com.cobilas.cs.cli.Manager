@@ -81,9 +81,9 @@ public static class CLIParse {
 			if (_tokens.TryGetValue(item, out long value))
 				result.Add(new(item, value));
 			else
-				result.Add(new(item, (long)CLIDefaultToken.Argument));
+				result.Add(new(item, ArgumentCode));
 		}
-		result.Add(new("(end-f)", (long)CLIDefaultToken.EndCode));
+		result.Add(new("(end-f)", EndCode));
 		return result;
 	}
 }

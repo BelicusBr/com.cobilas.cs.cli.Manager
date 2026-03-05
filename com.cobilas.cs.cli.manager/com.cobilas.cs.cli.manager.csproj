@@ -13,7 +13,7 @@
 		<Authors>BélicusBr</Authors>
         <Title>Cobilas CLI Manager</Title>
         <PackageId>Cobilas.CLI.Manager</PackageId>
-        <Version>2.0.1</Version>
+        <Version>2.0.2</Version>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageOutputPath>C:\local.nuget</PackageOutputPath>
         <RepositoryType>git</RepositoryType>
