@@ -13,7 +13,7 @@ namespace Cobilas.CLI.Manager;
 /// <param name="idRunFunction">The identifier of a function registered in <see cref="CLIParse"/> that accepts a <see cref="CLIKey"/> and an optional <see cref="CLIValueOrder"/>.</param>
 /// <param name="options">An array of option functions that belong to this function.</param>
 /// <exception cref="ArgumentNullException">Thrown when <paramref name="alias"/> is null.</exception>
-public readonly struct DefaultFunction(string alias, uint idRunFunction, params IOptionFunc[] options) : IFunction {
+public readonly struct DefaultFunction(string alias, uint idRunFunction, params IOptionFunc[] options) : IFunction, ICLIAnalyzer {
 	private readonly CLIKey alias = alias;
 	private readonly List<IOptionFunc> options = [.. options];
 	private readonly CLIValueOrder valueOrder = [];
@@ -81,7 +81,7 @@ public readonly struct DefaultFunction(string alias, uint idRunFunction, params 
 
 		list.Move();
 		foreach (IOptionFunc item in options)
-			if (item.Analyzer(list, message))
+			if (((ICLIAnalyzer)item).Analyzer(list, message))
 				return true;
 		if (list.CurrentValue != CLIParse.EndCode) {
 			if (list.CurrentValue == CLIParse.ArgumentCode) {

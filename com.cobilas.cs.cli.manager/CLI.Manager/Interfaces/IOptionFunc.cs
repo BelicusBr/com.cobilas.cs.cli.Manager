@@ -5,8 +5,7 @@ namespace Cobilas.CLI.Manager.Interfaces;
 /// Defines a contract for an option function that combines alias behavior, CLI analysis, and value handling.
 /// </summary>
 /// <seealso cref="IAlias"/>
-/// <seealso cref="ICLIAnalyzer"/>
-public interface IOptionFunc : IAlias, ICLIAnalyzer {
+public interface IOptionFunc : IAlias {
 	/// <summary>
 	/// Gets a value indicating whether this option function is mandatory.
 	/// </summary>

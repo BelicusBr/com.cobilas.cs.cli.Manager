@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.0] - (31/03/2026)
+
+### Breaking Changes
+- `IFunction` and `IOptionFunc` no longer inherit from `ICLIAnalyzer`.  
+  Code that previously called `Analyzer` directly on these interfaces must now cast to `ICLIAnalyzer` or use an appropriate reference.
+
+### Changed
+- Removed `ICLIAnalyzer` inheritance from `IFunction` and `IOptionFunc` to clarify separation of concerns.
+- Default implementations (`DefaultFunction`, `DefaultOption`, `DefaultArgument`) now explicitly implement `ICLIAnalyzer` and cast their option/argument collections to `ICLIAnalyzer` when invoking `Analyzer`.
+- `DictionaryExtension` improvements:
+  - Added `TryFind` method that returns `bool` and an `out` parameter, following the standard `Try*` pattern.
+  - `Find` now throws `KeyNotFoundException` when no matching key is found, replacing the previous silent return of `default`.
+- Project file version bumped to `3.0.0`. Output path now includes the version number.
+- NuGet package generation now only occurs in `Release` configuration.
+
+### Fixed
+- `DictionaryExtension.Find` no longer returns `default` on failure, preventing subtle bugs caused by silent failures.
+
+### Added
+- `DictionaryExtension.TryFind` extension method for safer dictionary lookups.
+
+---
+
 ## [2.0.2] - (05/03/2026)
 ### Fixed
 - `CLIParse.Parse(string[]?)` now correctly uses the configurable `CLIParse.ArgumentCode` and 
