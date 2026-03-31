@@ -13,7 +13,7 @@ namespace Cobilas.CLI.Manager;
 /// <param name="alias">The alias string for the argument. Cannot be null.</param>
 /// <param name="idDefaultValue">The identifier of a function registered in <see cref="CLIParse"/> that accepts a <see cref="CLIValueOrder"/> parameter.</param>
 /// <exception cref="ArgumentNullException">Thrown when <paramref name="alias"/> is null.</exception>
-public readonly struct DefaultArgument(bool mandatory, string? alias, uint idDefaultValue) : IArgument {
+public readonly struct DefaultArgument(bool mandatory, string? alias, uint idDefaultValue) : IArgument, ICLIAnalyzer {
 	private readonly bool mandatory = mandatory;
 	private readonly CLIKey alias = alias ?? throw new ArgumentNullException(nameof(alias));
 	private readonly Action<CLIValueOrder?> defaultValue = CLIParse.GetFunction<Action<CLIValueOrder?>>(idDefaultValue);

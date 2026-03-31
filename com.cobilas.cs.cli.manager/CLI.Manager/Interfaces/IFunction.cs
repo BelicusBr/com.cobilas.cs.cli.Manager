@@ -6,8 +6,7 @@ namespace Cobilas.CLI.Manager.Interfaces;
 /// Represents a function in the command-line interface, combining alias behavior, CLI analysis, and execution logic.
 /// </summary>
 /// <seealso cref="IAlias"/>
-/// <seealso cref="ICLIAnalyzer"/>
-public interface IFunction : IAlias, ICLIAnalyzer {
+public interface IFunction : IAlias {
 	/// <summary>
 	/// Gets the value order associated with this function.
 	/// </summary>
