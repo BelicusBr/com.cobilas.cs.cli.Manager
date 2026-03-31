@@ -42,7 +42,7 @@ internal partial class Program {
 		foreach (IFunction item in functions) {
 			if (item.IsAlias(list.CurrentKey)) {
 				// This is where the analysis is done to detect errors.
-				if (item.Analyzer(list, message)) {
+				if (((ICLIAnalyzer)item).Analyzer(list, message)) {
 					Console.WriteLine($"alz-msm:\r\n{message}");
 					break;
 				}

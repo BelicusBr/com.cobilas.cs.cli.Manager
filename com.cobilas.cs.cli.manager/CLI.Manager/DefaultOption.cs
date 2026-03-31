@@ -19,7 +19,7 @@ public readonly struct DefaultOption(
 	bool mandatory,
 	uint idArgName,
 	uint idDefaultValue,
-	params IArgument[]? arguments) : IOption {
+	params IArgument[]? arguments) : IOption, ICLIAnalyzer {
 	private readonly CLIKey alias = alias;
 	private readonly bool mandatory = mandatory;
 	private readonly List<IArgument>? options = GetArguments(arguments);
@@ -108,7 +108,7 @@ public readonly struct DefaultOption(
 				}
 			list.Move();
 			foreach (IArgument item in options)
-				if (item.Analyzer(list, message))
+				if (((ICLIAnalyzer)item).Analyzer(list, message))
 					return true;
 		}
 		return false;
