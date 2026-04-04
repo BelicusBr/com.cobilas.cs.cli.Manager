@@ -33,4 +33,6 @@ public interface IFunction : IAlias {
 	/// </summary>
 	/// <param name="action">An action that receives a <see cref="CLIKey"/> and an optional <see cref="CLIValueOrder"/>. Can be null.</param>
 	void Run(Action<CLIKey, CLIValueOrder?>? action);
+	void Run(ErrorMessage error);
+	void Run(Action<CLIKey, CLIValueOrder?>? action, ErrorMessage error);
 }

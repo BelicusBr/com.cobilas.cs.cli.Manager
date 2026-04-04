@@ -95,4 +95,14 @@ public readonly struct DefaultFunction(string alias, uint idRunFunction, params 
 		}
 		return false;
 	}
+
+	void IFunction.Run(ErrorMessage error)
+	{
+		throw new NotImplementedException();
+	}
+
+	void IFunction.Run(Action<CLIKey, CLIValueOrder?>? action, ErrorMessage error)
+	{
+		throw new NotImplementedException();
+	}
 }

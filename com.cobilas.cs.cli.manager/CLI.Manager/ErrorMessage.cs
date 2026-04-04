@@ -18,11 +18,6 @@ public sealed class ErrorMessage {
 	/// <returns>The current message.</returns>
 	public string Message { get; set; }
 	/// <summary>
-	/// Gets the unique identifier for this error message instance.
-	/// </summary>
-	/// <returns>A <see cref="Guid"/> uniquely identifying this instance.</returns>
-	public Guid Id { get; private set; }
-	/// <summary>
 	/// Gets a default <see cref="ErrorMessage"/> instance with empty values.
 	/// </summary>
 	/// <returns>A new default error message.</returns>
@@ -33,14 +28,13 @@ public sealed class ErrorMessage {
 	public ErrorMessage() {
 		ErroCode = -1;
 		Message = nameof(string.Empty);
-		Id = Guid.NewGuid();
 	}
 	/// <inheritdoc/>
-	public override int GetHashCode() => Id.GetHashCode() >> 1 ^ ErroCode;
+	public override int GetHashCode() => base.GetHashCode();
 	/// <summary>
 	/// Returns a string representation of the error message.
 	/// </summary>
 	/// <returns>A formatted string containing the error code, ID, and message.</returns>
 	public override string ToString()
-		=> $"{nameof(ErroCode)}: {ErroCode}\r\n{nameof(Id)}: {Id}\r\n{nameof(Message)}:{{\r\n{Message}\r\n}}";
+		=> $"{nameof(ErroCode)}: {ErroCode}\r\n{nameof(Message)}:{{\r\n{Message}\r\n}}";
 }
