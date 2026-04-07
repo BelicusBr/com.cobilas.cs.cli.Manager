@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cobilas.CLI.Manager;
+﻿namespace Cobilas.CLI.Manager;
 /// <summary>
 /// Represents an error message with a code and identifier, used for CLI error handling.
 /// </summary>

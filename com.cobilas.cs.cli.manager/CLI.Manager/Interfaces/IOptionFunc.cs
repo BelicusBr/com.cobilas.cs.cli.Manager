@@ -27,5 +27,5 @@ public interface IOptionFunc : IAlias {
 	/// </summary>
 	/// <param name="value">The key-value pair that caused the exception.</param>
 	/// <param name="message">The error message container to populate. Can be null.</param>
-	void ExceptionMessage(KeyValuePair<string, long> value, ErrorMessage? message);
+	void ExceptionMessage(object? onj, KeyValuePair<string, long> value, ErrorMessage? message);
 }

@@ -24,15 +24,6 @@ public interface IFunction : IAlias {
 	/// <param name="message">The error message container to populate in case of errors. Can be null.</param>
 	/// <returns><see langword="true"/> if values are successfully retrieved; otherwise, <see langword="false"/>.</returns>
 	bool GetValues(TokenList? list, ErrorMessage? message);
-	/// <summary>
-	/// Executes the function with its default behavior.
-	/// </summary>
-	void Run();
-	/// <summary>
-	/// Executes the function with a custom action that can process key-value pairs and the value order.
-	/// </summary>
-	/// <param name="action">An action that receives a <see cref="CLIKey"/> and an optional <see cref="CLIValueOrder"/>. Can be null.</param>
-	void Run(Action<CLIKey, CLIValueOrder?>? action);
 	void Run(ErrorMessage error);
 	void Run(Action<CLIKey, CLIValueOrder?>? action, ErrorMessage error);
 }
