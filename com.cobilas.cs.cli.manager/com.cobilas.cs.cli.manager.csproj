@@ -31,7 +31,4 @@
         <None Include="..\LICENSE.md" Pack="true" PackagePath="\" />
         <None Include="..\CHANGELOG.md" Pack="true" PackagePath="\" />
     </ItemGroup>
-    <ItemGroup>
-      <Folder Include="CLI.Manager\Patterns\InBlock\" />
-    </ItemGroup>
 </Project>

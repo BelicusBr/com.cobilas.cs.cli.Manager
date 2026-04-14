@@ -3,33 +3,56 @@ using System.Collections.Generic;
 using Cobilas.CLI.Manager.Interfaces;
 
 namespace Cobilas.CLI.Manager.Patterns.InLine;
+/// <summary>
+/// Represents an end option that marks the termination of command-line processing.
+/// </summary>
+/// <seealso cref="IOptionFunc"/>
+/// <seealso cref="ILineJumpOption"/>
+public readonly struct LineEndOption : IOptionFunc, ILineJumpOption {
+	private readonly CLIKey alias;
+	private readonly bool mandatory;
 
-public readonly struct LineEndOption(string? alias, bool mandatory) : IOptionFunc, ILineJumpOption {
-	private readonly CLIKey alias = alias;
-	private readonly bool mandatory = mandatory;
-
+	/// <summary>
+	/// Gets the alias of the end option.
+	/// </summary>
+	/// <returns>The option alias string.</returns>
 	public string Alias => alias;
+	/// <summary>
+	/// Gets a value indicating whether this end option is mandatory.
+	/// </summary>
+	/// <returns><see langword="true"/> if the option is mandatory; otherwise, <see langword="false"/>.</returns>
 	public bool Mandatory => mandatory;
+	/// <summary>
+	/// Gets the type code identifier for this end option.
+	/// </summary>
+	/// <returns>The type code as a long value.</returns>
 	public long TypeCode => (long)CLIDefaultToken.Option | CLIParse.EndCode;
-
+	/// <inheritdoc/>
 	int ILineJumpOption.JumpUp => 0;
+	/// <inheritdoc/>
 	bool ILineJumpOption.JumpToEnd => true;
 
+	public LineEndOption(string? alias, bool mandatory) {
+		this.mandatory = mandatory;
+		this.alias = alias ?? throw new ArgumentNullException(nameof(alias));
+	}
+	/// <summary>
+	/// Determines if the provided alias matches this option's alias.
+	/// </summary>
+	/// <param name="alias">The alias to compare.</param>
+	/// <returns><see langword="true"/> if the aliases match; otherwise, <see langword="false"/>.</returns>
 	public bool IsAlias(string? alias)
 		=> LineFunction.IsAlias(this, alias);
-
-	void IOptionFunc.DefaultValue(CLIValueOrder? valueOrder)
-	{
-		
-	}
-
-	void IOptionFunc.ExceptionMessage(object? onj, KeyValuePair<string, long> value, ErrorMessage? message)
-	{
-		
-	}
-
-	void IOptionFunc.TreatedValue(CLIValueOrder? valueOrder, TokenList? list)
-	{
-		
-	}
+	/// <inheritdoc/>
+	void IOptionFunc.DefaultValue(CLIValueOrder? valueOrder, ErrorMessage? message)
+		=> CLIParse.GetFunction<Action<CLIKey, CLIValueOrder?, ErrorMessage?>>(0)?
+			.Invoke(alias, valueOrder, message);
+	/// <inheritdoc/>
+	void IOptionFunc.ExceptionMessage(KeyValuePair<string, long> value, ErrorMessage? message)
+		=> CLIParse.GetFunction<Action<CLIKey, KeyValuePair<string, long>, ErrorMessage?>>(1)?
+			.Invoke(alias, value, message);
+	/// <inheritdoc/>
+	void IOptionFunc.TreatedValue(CLIValueOrder? valueOrder, TokenList? list, ErrorMessage? message)
+		=> CLIParse.GetFunction<Action<CLIKey, TokenList?, ErrorMessage?>>(2)?
+			.Invoke(alias, list, message);
 }

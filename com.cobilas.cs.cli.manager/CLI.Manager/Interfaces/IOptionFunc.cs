@@ -15,17 +15,19 @@ public interface IOptionFunc : IAlias {
 	/// Sets the default value for this option function based on the provided value order.
 	/// </summary>
 	/// <param name="valueOrder">The value order containing default values. Can be null.</param>
-	void DefaultValue(CLIValueOrder? valueOrder);
+	/// <param name="message">The error message container to populate in case of errors. Can be null.</param>
+	void DefaultValue(CLIValueOrder? valueOrder, ErrorMessage? message);
 	/// <summary>
 	/// Processes and treats the value from the token list for this option function.
 	/// </summary>
 	/// <param name="valueOrder">The value order that defines how values should be treated. Can be null.</param>
 	/// <param name="list">The token list containing the raw values. Can be null.</param>
-	void TreatedValue(CLIValueOrder? valueOrder, TokenList? list);
+	/// <param name="message">The error message container to populate in case of errors. Can be null.</param>
+	void TreatedValue(CLIValueOrder? valueOrder, TokenList? list, ErrorMessage? message);
 	/// <summary>
 	/// Generates an exception message for a specific key-value pair when an error occurs.
 	/// </summary>
 	/// <param name="value">The key-value pair that caused the exception.</param>
 	/// <param name="message">The error message container to populate. Can be null.</param>
-	void ExceptionMessage(object? onj, KeyValuePair<string, long> value, ErrorMessage? message);
+	void ExceptionMessage(KeyValuePair<string, long> value, ErrorMessage? message);
 }

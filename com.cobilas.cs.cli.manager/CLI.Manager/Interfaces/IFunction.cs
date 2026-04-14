@@ -24,6 +24,15 @@ public interface IFunction : IAlias {
 	/// <param name="message">The error message container to populate in case of errors. Can be null.</param>
 	/// <returns><see langword="true"/> if values are successfully retrieved; otherwise, <see langword="false"/>.</returns>
 	bool GetValues(TokenList? list, ErrorMessage? message);
-	void Run(ErrorMessage error);
-	void Run(Action<CLIKey, CLIValueOrder?>? action, ErrorMessage error);
+	/// <summary>
+	/// Executes the function with the specified error message container.
+	/// </summary>
+	/// <param name="message">The error message container to use during execution. Can be null.</param>
+	void Run(ErrorMessage? message);
+	/// <summary>
+	/// Executes the function with a custom action and error message container.
+	/// </summary>
+	/// <param name="action">The custom action to execute, which receives CLI key, value order, and error message parameters. Can be null.</param>
+	/// <param name="message">The error message container to use during execution. Can be null.</param>
+	void Run(Action<CLIKey, CLIValueOrder?, ErrorMessage?>? action, ErrorMessage? message);
 }
