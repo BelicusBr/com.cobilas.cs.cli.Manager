@@ -14,7 +14,7 @@ internal partial class Program {
 	 * 4) IFunction.Run
 	 * 5) ICLIAnalyzer.Analyzer
 	 */
-
+	//tdsf-2 tdsO-1 tdsO-2 ffere
 	private static void Main(string[] args) {
 
 		CLIParse.EndCode = (long)CLIDefaultToken.EndCode;
@@ -43,13 +43,15 @@ internal partial class Program {
 			),
 			new LineFunction("tdsf-2",
 				new LineEndOption("tdsO-1E", false),
-				new LineOption("tdsO-1", false, 2),
-				new LineOption("tdsO-2", true, 0),
-				new LineArgument("arg{100}", true),
+				new LineBlock("tdsO-1", false,
+					new LineOption("tdsO-2", true, 0),
+					new LineArgument("arg{100}", true)
+				),
 
-				new LineOption("tdsO-3", false, 2),
-				new LineOption("tdsO-2", true, 0),
-				new LineArgument("arg{100}", true)
+				new LineBlock("tdsO-3", false,
+					new LineOption("tdsO-2", true, 0),
+					new LineArgument("arg{100}", true)
+				)
 			)
 		};
 
@@ -61,6 +63,7 @@ internal partial class Program {
 			if (!item.IsAlias(list.CurrentKey)) continue;
 			if (item is ICLIAnalyzer alz) {
 				if (alz.Analyzer(list, message)) {
+					Console.WriteLine("anz");
 					Console.WriteLine(message);
 					return;
 				}
@@ -68,6 +71,7 @@ internal partial class Program {
 			list.Reset();
 			list.Move();
 			if (item.GetValues(list, message)) {
+				Console.WriteLine("gvl");
 				Console.WriteLine(message);
 				return;
 			}
@@ -82,7 +86,9 @@ internal partial class Program {
 			valueOrder.Add((CLIKey)"arg{100}", Environment.OSVersion.ToString());
 		else valueOrder.Add(alias, $"def-arg-{alias}");
 	}
-	private static void error_value(CLIKey alias, KeyValuePair<string, long> value, ErrorMessage? message) { }
+	private static void error_value(CLIKey alias, TokenList? list, KeyValuePair<string, long> value, ErrorMessage? message) {
+		message.Message = $"({alias})|{value}";
+	}
 	private static void get_value(CLIKey alias, CLIValueOrder? valueOrder, TokenList? list, ErrorMessage? message) {
 		if (alias == (CLIKey)"arg{100}")
 			valueOrder.Add((CLIKey)"arg{100}", list.CurrentKey);

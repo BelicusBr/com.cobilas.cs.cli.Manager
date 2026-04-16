@@ -21,4 +21,10 @@ public interface IAlias {
 	/// <param name="alias">The string to compare against the alias. Can be null.</param>
 	/// <returns><see langword="true"/> if the specified string matches the alias; otherwise, <see langword="false"/>.</returns>
 	bool IsAlias(string? alias);
+	/// <summary>
+	/// Determines whether the alias has the specified type code.
+	/// </summary>
+	/// <param name="typeCode">The type code to check against.</param>
+	/// <returns><see langword="true"/> if the alias has the specified type code; otherwise, <see langword="false"/>.</returns>
+	bool HasTypeCode(long typeCode);
 }

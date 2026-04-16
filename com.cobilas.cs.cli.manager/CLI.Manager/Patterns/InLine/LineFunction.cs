@@ -1,19 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using Cobilas.CLI.Manager.Interfaces;
-
-using AnalyzerFunc = System.Func<
-	Cobilas.CLI.Manager.CLIKey, 
-	Cobilas.CLI.Manager.TokenList?, 
-	System.Collections.Generic.List<Cobilas.CLI.Manager.Interfaces.IOptionFunc>?, 
-	Cobilas.CLI.Manager.ErrorMessage?, bool>;
-using GetValuesFunc = System.Func<
-	Cobilas.CLI.Manager.CLIKey, 
-	Cobilas.CLI.Manager.TokenList?, 
-	Cobilas.CLI.Manager.CLIValueOrder, 
-	System.Collections.Generic.List<Cobilas.CLI.Manager.Interfaces.IOptionFunc>?, 
-	Cobilas.CLI.Manager.ErrorMessage?, bool>;
 
 namespace Cobilas.CLI.Manager.Patterns.InLine;
 /// <summary>
@@ -21,10 +9,15 @@ namespace Cobilas.CLI.Manager.Patterns.InLine;
 /// </summary>
 /// <seealso cref="IFunction"/>
 /// <seealso cref="ICLIAnalyzer"/>
-public readonly struct LineFunction : IFunction , ICLIAnalyzer {
-	private readonly CLIKey alias;
-	private readonly CLIValueOrder valueOrder;
-	private readonly List<IOptionFunc> options;
+/// <remarks>
+/// Initializes a new instance of the <see cref="LineFunction"/> struct.
+/// </remarks>
+/// <param name="alias">The alias name for the function.</param>
+/// <param name="options">The array of option functions associated with this function.</param>
+public readonly struct LineFunction(string alias, params IOptionFunc[] options) : IFunction, ICLIAnalyzer {
+	private readonly CLIKey alias = alias;
+	private readonly CLIValueOrder valueOrder = [];
+	private readonly List<IOptionFunc> options = [.. options];
 	/// <summary>
 	/// Gets the alias of the function.
 	/// </summary>
@@ -45,42 +38,45 @@ public readonly struct LineFunction : IFunction , ICLIAnalyzer {
 	/// </summary>
 	/// <returns>The type code as a long value.</returns>
 	public long TypeCode => (long)CLIDefaultToken.Function;
-
-	public static Func<CLIKey, TokenList?, List<IOptionFunc>?, ErrorMessage?, bool> FunctionAnalyzer => LineFunctionUtility.Analyzer;
-	public static Func<CLIKey, TokenList?, CLIValueOrder, List<IOptionFunc>?, ErrorMessage?, bool> FunctionGetValues => LineFunctionUtility.GetValues;
-
 	/// <summary>
-	/// Initializes a new instance of the <see cref="LineFunction"/> struct.
+	/// Gets a function delegate used to analyze the token list for this function.
 	/// </summary>
-	/// <param name="alias">The alias name for the function.</param>
-	/// <param name="options">The array of option functions associated with this function.</param>
-	public LineFunction(string alias, params IOptionFunc[] options) {
-		valueOrder = [];
-		this.alias = alias;
-		this.options = [.. options];
-	}
+	/// <returns>A delegate that performs analysis and returns a boolean indicating success or failure.</returns>
+	public static AnalyzerFunc FunctionAnalyzer => LineFunctionUtility.Analyzer;
+	/// <summary>
+	/// Gets a function delegate used to retrieve values from the token list for this function.
+	/// </summary>
+	/// <returns>A delegate that retrieves values and returns a boolean indicating success or failure.</returns>
+	public static GetValuesFunc FunctionGetValues => LineFunctionUtility.GetValues;
 	/// <summary>
 	/// Determines if the provided alias matches this function's alias.
 	/// </summary>
 	/// <param name="alias">The alias to compare.</param>
 	/// <returns><see langword="true"/> if the aliases match; otherwise, <see langword="false"/>.</returns>
 	public bool IsAlias(string? alias) => IsAlias(this, alias);
+	/// <summary>
+	/// Determines whether this function's type code matches the specified type code.
+	/// </summary>
+	/// <param name="typeCode">The type code to compare.</param>
+	/// <returns><see langword="true"/> if the type codes match; otherwise, <see langword="false"/>.</returns>
+	public bool HasTypeCode(long typeCode)
+		=> HasTypeCode(TypeCode, typeCode);
 	/// <inheritdoc/>
 	public void Run(ErrorMessage? message)
-		=> Run(CLIParse.GetFunction<Action<CLIKey, CLIValueOrder?, ErrorMessage?>>(4), message);
+		=> Run(CLIParse.GetFunction<DefaultValueFunc>(4), message);
 	/// <inheritdoc/>
-	public void Run(Action<CLIKey, CLIValueOrder?, ErrorMessage?>? action, ErrorMessage? message)
+	public void Run(DefaultValueFunc? action, ErrorMessage? message)
 		=> action?.Invoke(alias, valueOrder, message);
 	/// <inheritdoc/>
 	bool ICLIAnalyzer.Analyzer(TokenList? list, ErrorMessage? message) {
 		Delegate? func = CLIParse.GetFunction(5);
 		if (func is null) return false;
 		foreach (AnalyzerFunc? item in func.GetInvocationList().Cast<AnalyzerFunc?>())
-			if (item is not null)
-			{
-				bool? numB = (bool?)item?.Invoke(alias, list, options, message);
+			if (item is not null) {
+				bool? numB = item?.Invoke(alias, list, options, message);
 				if (numB.HasValue)
-					return numB.Value;
+					if (numB.Value)
+						return true;
 			}
 		return false;
 	}
@@ -90,9 +86,10 @@ public readonly struct LineFunction : IFunction , ICLIAnalyzer {
 		if (func is null) return false;
 		foreach (GetValuesFunc? item in func.GetInvocationList().Cast<GetValuesFunc?>())
 			if (item is not null) {
-				bool? numB = (bool?)item?.Invoke(alias, list, valueOrder, options, message);
+				bool? numB = item?.Invoke(alias, list, valueOrder, options, message);
 				if (numB.HasValue)
-					return numB.Value;
+					if (numB.Value)
+						return true;
 			}
 		return false;
 	}
@@ -102,7 +99,7 @@ public readonly struct LineFunction : IFunction , ICLIAnalyzer {
 	/// <param name="typeCode">The type code to check.</param>
 	/// <param name="compare">The comparison code.</param>
 	/// <returns><see langword="true"/> if the type code matches; otherwise, <see langword="false"/>.</returns>
-	public static bool IsTypeCode(long typeCode, long compare)
+	public static bool HasTypeCode(long typeCode, long compare)
 		=> ((CLIDefaultToken)typeCode).HasFlag((CLIDefaultToken)compare);
 	/// <summary>
 	/// Determines if the provided alias matches the given alias object.
@@ -117,4 +114,12 @@ public readonly struct LineFunction : IFunction , ICLIAnalyzer {
 			return false;
 		return (CLIKey)alias.Alias == (CLIKey)aliasName;
 	}
+	/// <summary>
+	/// Determines whether the specified alias element matches the given key-value pair.
+	/// </summary>
+	/// <param name="alias">The alias object to check.</param>
+	/// <param name="value">The key-value pair containing the token and its type code.</param>
+	/// <returns><see langword="true"/> if the alias has the matching type code and the alias string equals either "{ARG}" or the key; otherwise, <see langword="false"/>.</returns>
+	public static bool HasElement(IAlias alias, KeyValuePair<string, long> value)
+		=> alias.HasTypeCode(value.Value) && ((CLIKey)alias.Alias == (CLIKey)"{ARG}" || (CLIKey)alias.Alias == (CLIKey)value.Key);
 }

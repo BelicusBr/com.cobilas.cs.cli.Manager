@@ -1,4 +1,5 @@
-﻿/// <summary>
+﻿namespace Cobilas.CLI.Manager.Patterns.InLine;
+/// <summary>
 /// Represents an interface for line jump options that define navigation behavior in command-line processing.
 /// </summary>
 public interface ILineJumpOption {

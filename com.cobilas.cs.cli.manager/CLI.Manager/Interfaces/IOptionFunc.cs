@@ -27,7 +27,8 @@ public interface IOptionFunc : IAlias {
 	/// <summary>
 	/// Generates an exception message for a specific key-value pair when an error occurs.
 	/// </summary>
+	/// <param name="list">The token list at the point of error. Can be null.</param>
 	/// <param name="value">The key-value pair that caused the exception.</param>
 	/// <param name="message">The error message container to populate. Can be null.</param>
-	void ExceptionMessage(KeyValuePair<string, long> value, ErrorMessage? message);
+	void ExceptionMessage(TokenList? list, KeyValuePair<string, long> value, ErrorMessage? message);
 }

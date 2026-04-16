@@ -75,6 +75,18 @@ public class TokenList : IDisposable {
 		}
 	}
 	/// <summary>
+	/// Gets the key-value pair at the specified index.
+	/// </summary>
+	/// <param name="index">The zero‑based index of the element to get.</param>
+	/// <returns>The key-value pair at the specified index.</returns>
+	/// <exception cref="NullReferenceException">Thrown if the internal list is null.</exception>
+	public KeyValuePair<string, long> this[int index] {
+		get {
+			ExceptionMessages.ThrowIfNull(list, nameof(list));
+			return list[index];
+		}
+	}
+	/// <summary>
 	/// Finalizes an instance of the <see cref="TokenList"/> class.
 	/// </summary>
 	~TokenList() => Dispose(disposing: false);
