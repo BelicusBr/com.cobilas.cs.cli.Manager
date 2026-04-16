@@ -37,7 +37,7 @@ public readonly struct LineBlock : IFunction, IOptionFunc, ICLIAnalyzer {
 		if (func is null) return false;
 		foreach (Delegate? item in func.GetInvocationList())
 			if (item is not null) {
-				bool? numB = (bool?)item?.DynamicInvoke(alias, valueOrder, list, message);
+				bool? numB = (bool?)item?.DynamicInvoke(alias, list, valueOrder, options, message);
 				if (numB.HasValue)
 					return numB.Value;
 			}
@@ -66,8 +66,8 @@ public readonly struct LineBlock : IFunction, IOptionFunc, ICLIAnalyzer {
 			.Invoke(alias, value, message);
 	/// <inheritdoc/>
 	void IOptionFunc.TreatedValue(CLIValueOrder? valueOrder, TokenList? list, ErrorMessage? message)
-		=> CLIParse.GetFunction<Action<CLIKey, TokenList?, ErrorMessage?>>(2)?
-			.Invoke(alias, list, message);
+		=> CLIParse.GetFunction<Action<CLIKey, CLIValueOrder?, TokenList?, ErrorMessage?>>(2)?
+			.Invoke(alias, valueOrder, list, message);
 
 	void IFunction.Run(ErrorMessage? message)
 		=> ((IFunction)this).Run(null, message);

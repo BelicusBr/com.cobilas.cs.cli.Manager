@@ -1,7 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using Cobilas.CLI.Manager.Exceptions;
+using System.Linq;
 using Cobilas.CLI.Manager.Interfaces;
+
+using AnalyzerFunc = System.Func<
+	Cobilas.CLI.Manager.CLIKey, 
+	Cobilas.CLI.Manager.TokenList?, 
+	System.Collections.Generic.List<Cobilas.CLI.Manager.Interfaces.IOptionFunc>?, 
+	Cobilas.CLI.Manager.ErrorMessage?, bool>;
+using GetValuesFunc = System.Func<
+	Cobilas.CLI.Manager.CLIKey, 
+	Cobilas.CLI.Manager.TokenList?, 
+	Cobilas.CLI.Manager.CLIValueOrder, 
+	System.Collections.Generic.List<Cobilas.CLI.Manager.Interfaces.IOptionFunc>?, 
+	Cobilas.CLI.Manager.ErrorMessage?, bool>;
 
 namespace Cobilas.CLI.Manager.Patterns.InLine;
 /// <summary>
@@ -61,12 +73,12 @@ public readonly struct LineFunction : IFunction , ICLIAnalyzer {
 		=> action?.Invoke(alias, valueOrder, message);
 	/// <inheritdoc/>
 	bool ICLIAnalyzer.Analyzer(TokenList? list, ErrorMessage? message) {
-		Func<CLIKey, TokenList?, List<IOptionFunc>?, ErrorMessage?, bool>? func =
-			CLIParse.GetFunction<Func<CLIKey, TokenList?, List<IOptionFunc>?, ErrorMessage?, bool>>(5);
+		Delegate? func = CLIParse.GetFunction(5);
 		if (func is null) return false;
-		foreach (Delegate? item in func.GetInvocationList())
-			if (item is not null) {
-				bool? numB = (bool?)item?.DynamicInvoke(alias, list, options, message);
+		foreach (AnalyzerFunc? item in func.GetInvocationList().Cast<AnalyzerFunc?>())
+			if (item is not null)
+			{
+				bool? numB = (bool?)item?.Invoke(alias, list, options, message);
 				if (numB.HasValue)
 					return numB.Value;
 			}
@@ -74,12 +86,11 @@ public readonly struct LineFunction : IFunction , ICLIAnalyzer {
 	}
 	/// <inheritdoc/>
 	bool IFunction.GetValues(TokenList? list, ErrorMessage? message) {
-		Func<CLIKey, TokenList?, CLIValueOrder, List<IOptionFunc>?, ErrorMessage?, bool>? func =
-			CLIParse.GetFunction<Func<CLIKey, TokenList?, CLIValueOrder, List<IOptionFunc>?, ErrorMessage?, bool>>(3);
+		Delegate? func = CLIParse.GetFunction(3);
 		if (func is null) return false;
-		foreach (Delegate? item in func.GetInvocationList())
+		foreach (GetValuesFunc? item in func.GetInvocationList().Cast<GetValuesFunc?>())
 			if (item is not null) {
-				bool? numB = (bool?)item?.DynamicInvoke(alias, valueOrder, list, message);
+				bool? numB = (bool?)item?.Invoke(alias, list, valueOrder, options, message);
 				if (numB.HasValue)
 					return numB.Value;
 			}

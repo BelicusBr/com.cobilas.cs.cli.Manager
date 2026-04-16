@@ -57,6 +57,6 @@ public readonly struct LineOption : IOptionFunc, ILineJumpOption {
 			.Invoke(alias, value, message);
 	/// <inheritdoc/>
 	void IOptionFunc.TreatedValue(CLIValueOrder? valueOrder, TokenList? list, ErrorMessage? message)
-		=> CLIParse.GetFunction<Action<CLIKey, TokenList?, ErrorMessage?>>(2)?
-			.Invoke(alias, list, message);
+		=> CLIParse.GetFunction<Action<CLIKey, CLIValueOrder?, TokenList?, ErrorMessage?>>(2)?
+			.Invoke(alias, valueOrder, list, message);
 }

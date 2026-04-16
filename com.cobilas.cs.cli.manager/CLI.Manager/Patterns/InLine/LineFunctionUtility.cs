@@ -10,6 +10,9 @@ internal static class LineFunctionUtility {
 			ExceptionMessages.ThrowIfNull(list, nameof(list));
 			ExceptionMessages.ThrowIfNull(options, nameof(options));
 
+			if (alias != (CLIKey)list.CurrentKey)
+				return false;
+			list.Move();
 			for (int I = 0; I < options.Count; I++) {
 				IOptionFunc item = options[I];
 				if (item.TypeCode != list.CurrentValue) {
@@ -44,28 +47,35 @@ internal static class LineFunctionUtility {
 			ExceptionMessages.ThrowIfNull(list, nameof(list));
 			ExceptionMessages.ThrowIfNull(options, nameof(options));
 
+			if (alias != (CLIKey)list.CurrentKey)
+				return false;
+			list.Move();
 			for (int I = 0; I < options.Count; I++) {
 				IOptionFunc item = options[I];
 				if (item.TypeCode != list.CurrentValue) {
-					if (!item.Mandatory) {
+					if (item is ILineJumpOption ljo) {
 						item.DefaultValue(valueOrder, message);
-						return true;
-					} else if (item is ILineJumpOption ljo) {
 						if (!ljo.JumpToEnd) {
 							I += ljo.JumpUp;
 							continue;
 						}
-					}
+					} else if (!item.Mandatory) {
+						item.DefaultValue(valueOrder, message);
+						return true;
+					} 
 				} else {
 					if (item is ILineJumpOption ljo2)
 						if (ljo2.JumpToEnd) {
 							I = options.Count;
+							item.TreatedValue(valueOrder, list, message);
 							continue;
 						}
 					if (item is IFunction ifc) {
 						list.Move();
 						if (ifc.GetValues(list, message))
 							return true;
+					} else { 
+						item.TreatedValue(valueOrder, list, message);
 					}
 					list.Move();
 				}

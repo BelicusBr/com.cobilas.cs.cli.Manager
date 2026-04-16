@@ -14,7 +14,6 @@ internal partial class Program {
 	 * 4) IFunction.Run
 	 * 5) ICLIAnalyzer.Analyzer
 	 */
-	static event Func<string, bool> confis;
 
 	private static void Main(string[] args) {
 
@@ -25,50 +24,68 @@ internal partial class Program {
 		CLIParse.AddToken((long)CLIDefaultToken.Option, "tdsO-1", "tdsO-2", "tdsO-3");
 		CLIParse.AddToken((long)CLIDefaultToken.Option | CLIParse.EndCode, "tdsO-1E");
 
-		confis += (s) => s == "gagalvi";
-		confis += (s) => s == "mastor";
-		confis += (s) => s == "nina";
-		confis += (s) => s == "gustavi";
-		confis += (s) => s == "anastor";
+		CLIParse.AddFunction(0u, def_value);
+		CLIParse.AddFunction(1u, error_value);
+		CLIParse.AddFunction(2u, get_value);
+		CLIParse.AddFunction(3u, LineFunction.FunctionGetValues);
+		CLIParse.AddFunction(5u, LineFunction.FunctionAnalyzer);
 
-		string res = Console.ReadLine();
-		bool result = confis.Invoke(res);
-			//.GetInvocationList()
-			//.Cast<Func<string, bool>>()
-			//.Any(f => f(res));
+		IFunction[] functions = {
+			new LineFunction("tdsf-1",
+				new LineEndOption("tdsO-1E", false),
+				new LineOption("tdsO-1", false, 2),
+				new LineOption("tdsO-2", true, 0),
+				new LineArgument("arg{100}", true),
 
-		if (result) {
-			Console.WriteLine($"conf:{res}");
-		} else {
-			Console.WriteLine($"inconf:{res}");
+				new LineOption("tdsO-3", false, 2),
+				new LineOption("tdsO-2", true, 0),
+				new LineArgument("arg{100}", true)
+			),
+			new LineFunction("tdsf-2",
+				new LineEndOption("tdsO-1E", false),
+				new LineOption("tdsO-1", false, 2),
+				new LineOption("tdsO-2", true, 0),
+				new LineArgument("arg{100}", true),
+
+				new LineOption("tdsO-3", false, 2),
+				new LineOption("tdsO-2", true, 0),
+				new LineArgument("arg{100}", true)
+			)
+		};
+
+		TokenList list = new(CLIParse.Parse(Console.ReadLine().Split(' ', StringSplitOptions.RemoveEmptyEntries)));
+		ErrorMessage message = ErrorMessage.Default;
+		list.Move();
+
+		foreach (IFunction item in functions) {
+			if (!item.IsAlias(list.CurrentKey)) continue;
+			if (item is ICLIAnalyzer alz) {
+				if (alz.Analyzer(list, message)) {
+					Console.WriteLine(message);
+					return;
+				}
+			}
+			list.Reset();
+			list.Move();
+			if (item.GetValues(list, message)) {
+				Console.WriteLine(message);
+				return;
+			}
+
+			foreach (var item2 in item.ValueOrder)
+				Console.WriteLine(item2);
 		}
+	}
 
-		//IFunction[] functions = {
-		//	new LineFunction("tdsf-1",
-		//		new LineEndOption("tdsO-1E", false),
-		//		new LineOption("tdsO-1", false, 2),
-		//		new LineOption("tdsO-2", true, 0),
-		//		new LineArgument("arg{100}", true),
-
-		//		new LineOption("tdsO-3", false, 2),
-		//		new LineOption("tdsO-2", true, 0),
-		//		new LineArgument("arg{100}", true)
-		//	)
-		//};
-
-		//TokenList list = new(CLIParse.Parse(args));
-		//ErrorMessage message = ErrorMessage.Default;
-		//list.Move();
-
-		//foreach (IFunction item in functions) {
-		//	if (!item.IsAlias(list.CurrentKey)) continue;
-		//	list.Move();
-		//	if (item is ICLIAnalyzer alz) {
-		//		if (alz.Analyzer(list, message)) {
-		//			Console.WriteLine(message);
-		//			return;
-		//		}
-		//	}
-		//}
+	private static void def_value(CLIKey alias, CLIValueOrder? valueOrder, ErrorMessage? message) {
+		if (alias == (CLIKey)"arg{100}")
+			valueOrder.Add((CLIKey)"arg{100}", Environment.OSVersion.ToString());
+		else valueOrder.Add(alias, $"def-arg-{alias}");
+	}
+	private static void error_value(CLIKey alias, KeyValuePair<string, long> value, ErrorMessage? message) { }
+	private static void get_value(CLIKey alias, CLIValueOrder? valueOrder, TokenList? list, ErrorMessage? message) {
+		if (alias == (CLIKey)"arg{100}")
+			valueOrder.Add((CLIKey)"arg{100}", list.CurrentKey);
+		else valueOrder.Add(list.CurrentKey, $"arg-{list.CurrentKey}");
 	}
 }
