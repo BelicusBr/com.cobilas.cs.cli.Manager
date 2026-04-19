@@ -82,12 +82,13 @@ public readonly struct LineBlock(string? alias, bool mandatory, params IOptionFu
 		=> CLIParse.GetFunction<TreatedValueFunc>(2)?
 			.Invoke(alias, valueOrder, list, message);
 	/// <inheritdoc/>
-	void IFunction.Run(ErrorMessage? message)
+	bool IFunction.Run(ErrorMessage? message)
 		=> ((IFunction)this).Run(null, message);
 	/// <inheritdoc/>
-	void IFunction.Run(Action<CLIKey, CLIValueOrder?, ErrorMessage?>? action, ErrorMessage? message) {
+	bool IFunction.Run(RunFunc? action, ErrorMessage? message) {
 		ExceptionMessages.ThrowIfNull(message, nameof(message));
 		message.ErroCode = 1256;
 		message.Message = $"The function '{alias}' does not have an implementation of '{nameof(IFunction)}.{nameof(IFunction.Run)}'!";
+		return true;
 	}
 }

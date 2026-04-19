@@ -28,7 +28,7 @@ internal static class LineFunctionUtility {
 					} else list.Move();
 				} else {
 					if (item.Mandatory) {
-						item.ExceptionMessage(list.Current, message);
+						item.ExceptionMessage(list, list.Current, message);
 						return true;
 					} else if (item is ILineJumpOption ljo) {
 						if (!ljo.JumpToEnd) {
@@ -86,7 +86,7 @@ internal static class LineFunctionUtility {
 						item.DefaultValue(valueOrder, message);
 						return false;
 					} else {
-						item.ExceptionMessage(list.Current, message);
+						item.ExceptionMessage(list, list.Current, message);
 						return true;
 					}
 				} 
