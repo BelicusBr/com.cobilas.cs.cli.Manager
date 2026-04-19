@@ -8,7 +8,7 @@ namespace Cobilas.CLI.Manager;
 /// </summary>
 public static class CLIParse {
 	private static readonly Dictionary<string, long> _tokens = [];
-	private static readonly Dictionary<uint, Delegate> _functions = [];
+	private static readonly Dictionary<uint, Delegate?> _functions = [];
 	/// <summary>
 	/// Gets or sets the numeric code used to mark the end of input.
 	/// </summary>
@@ -57,15 +57,16 @@ public static class CLIParse {
 	/// </summary>
 	/// <param name="id">The identifier of the function.</param>
 	/// <returns>The registered delegate.</returns>
-	public static Delegate GetFunction(uint id) => _functions[id];
+	public static Delegate? GetFunction(uint id) => IGetFunction(id);
+
 	/// <summary>
 	/// Retrieves a function delegate of a specific type by its identifier.
 	/// </summary>
 	/// <typeparam name="TFunc">The delegate type to cast to.</typeparam>
 	/// <param name="id">The identifier of the function.</param>
 	/// <returns>The registered delegate cast to <typeparamref name="TFunc"/>.</returns>
-	public static TFunc GetFunction<TFunc>(uint id) where TFunc : Delegate
-		=> (TFunc)_functions[id];
+	public static TFunc? GetFunction<TFunc>(uint id) where TFunc : Delegate
+		=> (TFunc?)IGetFunction(id);
 	/// <summary>
 	/// Parses an array of command-line arguments into a list of token key-value pairs.
 	/// </summary>
@@ -85,5 +86,11 @@ public static class CLIParse {
 		}
 		result.Add(new("(end-f)", EndCode));
 		return result;
+	}
+
+	private static Delegate? IGetFunction(uint id) {
+		if (_functions.TryGetValue(id, out Delegate? funcs))
+			return funcs;
+		return null;
 	}
 }

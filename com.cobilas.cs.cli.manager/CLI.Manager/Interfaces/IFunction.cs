@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Cobilas.CLI.Manager.Interfaces;
 /// <summary>
@@ -25,12 +24,16 @@ public interface IFunction : IAlias {
 	/// <returns><see langword="true"/> if values are successfully retrieved; otherwise, <see langword="false"/>.</returns>
 	bool GetValues(TokenList? list, ErrorMessage? message);
 	/// <summary>
-	/// Executes the function with its default behavior.
+	/// Executes the function with the specified error message container.
 	/// </summary>
-	void Run();
+	/// <param name="message">The error message container to use during execution. Can be null.</param>
+	/// <returns><see langword="true"/> if execution completed successfully; otherwise, <see langword="false"/>.</returns>
+	bool Run(ErrorMessage? message);
 	/// <summary>
-	/// Executes the function with a custom action that can process key-value pairs and the value order.
+	/// Executes the function with a custom action and error message container.
 	/// </summary>
-	/// <param name="action">An action that receives a <see cref="CLIKey"/> and an optional <see cref="CLIValueOrder"/>. Can be null.</param>
-	void Run(Action<CLIKey, CLIValueOrder?>? action);
+	/// <param name="action">The custom action to execute, which receives CLI key, value order, and error message parameters. Can be null.</param>
+	/// <param name="message">The error message container to use during execution. Can be null.</param>
+	/// <returns><see langword="true"/> if execution completed successfully; otherwise, <see langword="false"/>.</returns>
+	bool Run(RunFunc? action, ErrorMessage? message);
 }
