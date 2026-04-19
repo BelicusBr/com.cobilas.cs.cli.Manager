@@ -76,7 +76,6 @@ public readonly struct LineFunction(string alias, params IOptionFunc[] options) 
 			}
 		return false;
 	}
-		//=> action?.Invoke(alias, valueOrder, message);
 	/// <inheritdoc/>
 	bool ICLIAnalyzer.Analyzer(TokenList? list, ErrorMessage? message) {
 		Delegate? func = CLIParse.GetFunction(5);
