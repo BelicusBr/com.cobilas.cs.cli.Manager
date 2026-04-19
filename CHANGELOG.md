@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.0.0] - (16/04/2026)
+
+### Breaking Changes
+- Removed `DefaultArgument`, `DefaultFunction`, and `DefaultOption` classes in favor of new inline pattern implementations.
+- `ErrorMessage` class no longer contains an `Id` property.
+- Modified `IOptionFunc.ExceptionMessage` method signature to include `TokenList` parameter.
+
+### Added
+- New inline pattern implementations:
+  - `LineArgument` for command-line arguments
+  - `LineEndOption` for end-of-processing markers
+  - `LineFunction` for function handling
+  - `LineOption` for option processing
+  - `LineBlock` for option grouping
+- `ILineJumpOption` interface for navigation behavior
+- `GlobalDefinitions.cs` for global delegate type aliases
+- `HasTypeCode` method to `IAlias` interface
+- `AddRange` method to `CLIValueOrder` for batch operations
+- Indexer support to `TokenList` class
+
+### Changed
+- `CLIParse.GetFunction` now returns nullable delegates
+- Modified `IOptionFunc.TreatedValue` to accept nullable parameters
+- Updated `CLIDefaultToken` to use flags enumeration
+- Enhanced error handling in pattern implementations
+- Improved token processing logic in `LineFunctionUtility`
+- Project version bumped to 4.0.0
+
+### Fixed
+- Improved argument and option validation in pattern analyzers
+- Enhanced error message generation for missing elements
+- Fixed token type checking logic in line patterns
+
+---
+
 ## [3.0.0] - (31/03/2026)
 
 ### Breaking Changes

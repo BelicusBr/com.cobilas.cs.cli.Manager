@@ -1,20 +1,26 @@
 ﻿using System;
-using System.IO;
 using Cobilas.CLI.Manager;
 using System.Collections.Generic;
 using Cobilas.CLI.Manager.Interfaces;
 using Cobilas.CLI.Manager.Patterns.InLine;
-using System.Linq;
 
 internal partial class Program {
-	/* 0) IOptionFunc.DefaultValue
+	/* Functions ID
+	 * 0) IOptionFunc.DefaultValue
 	 * 1) IOptionFunc.ExceptionMessage
 	 * 2) IOptionFunc.TreatedValue
 	 * 3) IFunction.GetValues
 	 * 4) IFunction.Run
 	 * 5) ICLIAnalyzer.Analyzer
 	 */
-	//tdsf-2 tdsO-1 tdsO-2 ffere
+	/* Function internal events
+	 * 0) IOptionFunc.DefaultValue => Action<CLIKey, CLIValueOrder?, ErrorMessage?>
+	 * 1) IOptionFunc.ExceptionMessage => Action<CLIKey, TokenList?, KeyValuePair<string, long>, ErrorMessage?>
+	 * 2) IOptionFunc.TreatedValue => Action<CLIKey, CLIValueOrder?, TokenList?, ErrorMessage?>
+	 * 3) IFunction.GetValues => Func<CLIKey, TokenList?, CLIValueOrder?, List<IOptionFunc>?, ErrorMessage?, bool>
+	 * 4) IFunction.Run => Action<CLIKey, CLIValueOrder?, ErrorMessage?>
+	 * 5) ICLIAnalyzer.Analyzer => Func<CLIKey, TokenList?, List<IOptionFunc>?, ErrorMessage?, bool>
+	 */
 	private static void Main(string[] args) {
 
 		CLIParse.EndCode = (long)CLIDefaultToken.EndCode;
@@ -32,6 +38,7 @@ internal partial class Program {
 
 		IFunction[] functions = {
 			new LineFunction("tdsf-1",
+				//line pattern
 				new LineEndOption("tdsO-1E", false),
 				new LineOption("tdsO-1", false, 2),
 				new LineOption("tdsO-2", true, 0),
@@ -42,6 +49,7 @@ internal partial class Program {
 				new LineArgument("arg{100}", true)
 			),
 			new LineFunction("tdsf-2",
+				//block pattern
 				new LineEndOption("tdsO-1E", false),
 				new LineBlock("tdsO-1", false,
 					new LineOption("tdsO-2", true, 0),
@@ -55,7 +63,7 @@ internal partial class Program {
 			)
 		};
 
-		TokenList list = new(CLIParse.Parse(Console.ReadLine().Split(' ', StringSplitOptions.RemoveEmptyEntries)));
+		TokenList list = new(CLIParse.Parse(args));
 		ErrorMessage message = ErrorMessage.Default;
 		list.Move();
 
@@ -63,7 +71,6 @@ internal partial class Program {
 			if (!item.IsAlias(list.CurrentKey)) continue;
 			if (item is ICLIAnalyzer alz) {
 				if (alz.Analyzer(list, message)) {
-					Console.WriteLine("anz");
 					Console.WriteLine(message);
 					return;
 				}
@@ -71,13 +78,14 @@ internal partial class Program {
 			list.Reset();
 			list.Move();
 			if (item.GetValues(list, message)) {
-				Console.WriteLine("gvl");
 				Console.WriteLine(message);
 				return;
 			}
 
-			foreach (var item2 in item.ValueOrder)
-				Console.WriteLine(item2);
+			if (item.Run(message)) {
+				Console.WriteLine(message);
+				return;
+			}
 		}
 	}
 

@@ -1,198 +1,184 @@
-﻿# Cobilas.CLI.Manager
-A powerful and flexible command-line interface (CLI) parser library for .NET applications.  
-It provides both simple, ready‑to‑use components for common CLI tasks and abstract interfaces for building highly customised command parsers.
+﻿# Cobilas CLI Manager
 
----
+A powerful and flexible command-line interface (CLI) parsing library for .NET applications, designed to handle complex command structures with ease.
 
-## 📦 Installation
+## Installation
 
-Install the [NuGet package](https://www.nuget.org/packages/Cobilas.CLI.Manager):
+### Package Manager
+```bash
+Install-Package Cobilas.CLI.Manager
+```
 
+### .NET CLI
 ```bash
 dotnet add package Cobilas.CLI.Manager
 ```
 
-Or via the Package Manager Console:
-
-```powershell
-Install-Package Cobilas.CLI.Manager
+### Package Reference
+```xml
+<PackageReference Include="Cobilas.CLI.Manager" Version="1.0.0" />
 ```
 
----
+## Description
 
-## ✨ Features
+Cobilas CLI Manager provides a structured approach to parsing command-line arguments in .NET applications. It offers:
 
-- **Simple, declarative CLI definition**  
-  Use `DefaultFunction`, `DefaultOption`, and `DefaultArgument` to quickly build commands with minimal code.
+- **Type-safe command definitions** using interfaces and structs
+- **Flexible token system** with support for functions, options, and arguments
+- **Customizable error handling** with detailed error messages
+- **Pattern-based parsing** with inline and block patterns
+- **Extensible architecture** allowing custom option and function implementations
 
-- **Extensible architecture**  
-  Implement interfaces like `IFunction`, `IOption`, `IArgument`, and `IOptionFunc` to create fully customised parsing logic.
+## Technical Characteristics
 
-- **Token‑based parsing**  
-  The `CLIParse` class converts raw command‑line arguments into a list of tokens (key‑value pairs with type codes).  
-  Built‑in token types are defined in `CLIDefaultToken` (Function, Option, Argument, EndCode).
+- **Target Frameworks**: .NET Standard 2.0+, .NET 6.0+, .NET 7.0+, .NET 8.0+
+- **Dependencies**: None (self-contained)
+- **License**: MIT
 
-- **Alias support**  
-  Every CLI element can have multiple aliases (e.g., `"create/-c"`). The `CLIKey` structure handles compound keys.
+## Key Components
 
-- **Value order management**  
-  `CLIValueOrder` collects processed values (arguments, option parameters) and makes them available to your functions.
+### Core Types
+- `CLIParse`: Main parsing class with static methods for token registration and parsing
+- `CLIKey`: Represents compound keys that can match multiple alias strings
+- `CLIValueOrder`: Ordered collection of key-value pairs for storing parsed values
+- `TokenList`: List of token key-value pairs with cursor navigation
+- `ErrorMessage`: Container for error information during parsing
 
-- **Error handling**  
-  The `ErrorMessage` class and the `ICLIAnalyzer` interface allow you to detect and report parsing errors gracefully.
+### Interfaces
+- `IAlias`: Base interface for all alias entities
+- `IArgument`: Represents command-line arguments
+- `ICLIAnalyzer`: Defines contract for analyzing token lists
+- `IFunction`: Represents CLI functions with options and execution logic
+- `IOption`: Represents CLI options that can contain arguments
+- `IOptionFunc`: Combines alias behavior with value handling capabilities
 
-- **Integrated function registry**  
-  Register delegates with `CLIParse.AddFunction()` and reference them by ID in your default components – ideal for separating logic from structure.
+### Patterns (Inline)
+- `LineArgument`: Represents a command-line argument
+- `LineBlock`: Combines multiple options into a processing unit
+- `LineEndOption`: Marks termination of command-line processing
+- `LineFunction`: Main function with alias and option processing
+- `LineOption`: Command-line option with jump behavior
 
----
+### Exceptions
+- `InvalidCLIArgumentException`: Invalid CLI argument error
+- `InvalidCLIArgumentTypeException`: Invalid CLI argument type error
+- `InvalidCLIFunctionException`: Invalid CLI function error
+- `InvalidCLIOptionException`: Invalid CLI option error
+- `NotDescribedException`: Parser rule violation without description
 
-## 🚀 Usage
+## Implementation Details
 
-### Standard Implementation
+The library uses a token-based parsing system where:
+1. Tokens are registered with type codes (Function, Option, Argument, EndCode)
+2. Command-line arguments are converted to token sequences
+3. Functions define expected patterns using option elements
+4. The parser validates input against defined patterns
+5. Values are extracted and stored in CLIValueOrder collections
 
-The following example demonstrates a simple file management tool with two commands: `remove` (or `-r`) and `create` (or `-c`).  
-Each command expects one argument (a file name).
+## Usage
+
+### Standard Usage
 
 ```csharp
 using System;
-using System.IO;
 using Cobilas.CLI.Manager;
-using Cobilas.CLI.Manager.Interfaces;
 using System.Collections.Generic;
+using Cobilas.CLI.Manager.Interfaces;
+using Cobilas.CLI.Manager.Patterns.InLine;
 
-internal partial class Program
-{
-    private static void Main(string[] args)
-    {
-        Console.WriteLine("Program.Main started.");
+internal partial class Program {
+    private static void Main(string[] args) {
+        // Configure parsing settings
+        CLIParse.EndCode = (long)CLIDefaultToken.EndCode;
+        CLIParse.ArgumentCode = (long)CLIDefaultToken.Argument;
 
-        // Register function delegates with unique IDs
-        CLIParse.AddFunction(1, remove_func);
-        CLIParse.AddFunction(2, create_func);
-        CLIParse.AddFunction(3, defValueEmpty);
+        // Register tokens
+        CLIParse.AddToken((long)CLIDefaultToken.Function, "tdsf-1", "tdsf-2");
+        CLIParse.AddToken((long)CLIDefaultToken.Option, "tdsO-1", "tdsO-2", "tdsO-3");
+        CLIParse.AddToken((long)CLIDefaultToken.Option | CLIParse.EndCode, "tdsO-1E");
 
-        // Define tokens (the strings that will be recognised as commands)
-        CLIParse.AddToken((long)CLIDefaultToken.Function, "remove", "-r", "create", "-c");
+        // Register function handlers
+        CLIParse.AddFunction(0u, def_value);
+        CLIParse.AddFunction(1u, error_value);
+        CLIParse.AddFunction(2u, get_value);
+        CLIParse.AddFunction(3u, LineFunction.FunctionGetValues);
+        CLIParse.AddFunction(5u, LineFunction.FunctionAnalyzer);
 
-        // Describe the available functions and their expected arguments
-        IFunction[] functions =
-        [
-            new DefaultFunction(
-                "remove/-r", 1,
-                new DefaultArgument(true, $"arg1/{{ARG}}/{nameof(CLIDefaultToken.Argument)}", 2)
+        // Define functions with their patterns
+        IFunction[] functions = {
+            new LineFunction("tdsf-1",
+                new LineEndOption("tdsO-1E", false),
+                new LineOption("tdsO-1", false, 2),
+                new LineOption("tdsO-2", true, 0),
+                new LineArgument("arg{100}", true),
+                new LineOption("tdsO-3", false, 2),
+                new LineOption("tdsO-2", true, 0),
+                new LineArgument("arg{100}", true)
             ),
-            new DefaultFunction(
-                "create/-c", 2,
-                new DefaultArgument(true, $"arg1/{{ARG}}/{nameof(CLIDefaultToken.Argument)}", 2)
+            new LineFunction("tdsf-2",
+                new LineEndOption("tdsO-1E", false),
+                new LineBlock("tdsO-1", false,
+                    new LineOption("tdsO-2", true, 0),
+                    new LineArgument("arg{极速赛车开奖结果记录", true)
+                ),
+                new LineBlock("tdsO-3", false,
+                    new LineOption("tdsO-2", true, 0),
+                    new LineArgument("arg{100}", true)
+                )
             )
-        ];
+        };
 
-        // Parse the command line into a token list
-        List<KeyValuePair<string, long>> tokenPairs = CLIParse.Parse(args);
-        using TokenList list = new(tokenPairs);
+        // Parse and process arguments
+        TokenList list = new(CLIParse.Parse(args));
         ErrorMessage message = ErrorMessage.Default;
-
-        // Move to the first token (the command)
         list.Move();
 
-        foreach (IFunction function in functions)
-        {
-            if (function.IsAlias(list.CurrentKey))
-            {
-                // Analyse the token stream for this function
-                if (function.Analyzer(list, message))
-                {
-                    Console.WriteLine($"Analysis error:\n{message}");
-                    break;
-                }
-
-                // Reset the list and skip the command token to read arguments
-                list.Reset();
-                list.Move(2);
-
-                // Retrieve values into the function's ValueOrder
-                if (function.GetValues(list, message))
-                {
-                    Console.WriteLine($"Value error:\n{message}");
-                    break;
-                }
-
-                // Execute the function
-                function.Run();
-                break;
+        foreach (IFunction item in functions) {
+            if (!item.IsAlias(list.CurrentKey)) continue;
+            
+            if (item is ICLIAnalyzer alz && alz.Analyzer(list, message)) {
+                Console.WriteLine(message);
+                return;
             }
-        }
-
-        Console.WriteLine("Program.Main finished.");
-    }
-
-    private static void remove_func(CLIKey key, CLIValueOrder valueOrder)
-    {
-        if (key == "remove" || key == "-r")
-        {
-            string path = Path.Combine(Environment.CurrentDirectory, valueOrder["arg1"]!);
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-                Console.WriteLine($"Removed: {path}");
+            
+            list.Reset();
+            list.Move();
+            
+            if (item.GetValues(list, message)) {
+                Console.WriteLine(message);
+                return;
             }
-            else
-            {
-                Console.WriteLine($"File not found: {path}");
+
+            if (item.Run(message)) {
+                Console.WriteLine(message);
+                return;
             }
         }
     }
 
-    private static void create_func(CLIKey key, CLIValueOrder valueOrder)
-    {
-        if (key == "create" || key == "-c")
-        {
-            string path = Path.Combine(Environment.CurrentDirectory, valueOrder["arg1"]!);
-            if (!File.Exists(path))
-            {
-                File.Create(path).Dispose();
-                Console.WriteLine($"Created: {path}");
-            }
-            else
-            {
-                Console.WriteLine($"File already exists: {path}");
-            }
-        }
+    // Function implementations
+    private static void def_value(CLIKey alias, CLIValueOrder? valueOrder, ErrorMessage? message) {
+        if (alias == (CLIKey)"arg{100}")
+            valueOrder.Add((CLIKey)"arg{100}", Environment.OSVersion.ToString());
+        else valueOrder.Add(alias, $"def-arg-{alias}");
     }
-
-    private static void defValueEmpty(CLIValueOrder? valueOrder) { }
+    
+    private static void error_value(极速赛车开奖结果记录 alias, TokenList? list, KeyValuePair<string, long> value, ErrorMessage? message) {
+        message.Message = $"({alias})|{value}";
+    }
+    
+    private static void get_value(CLIKey alias, CLIValueOrder? valueOrder, Token极速赛车开奖结果记录? list, ErrorMessage? message) {
+        if (alias == (CLIKey)"arg{100}")
+            valueOrder.Add((CLIKey)"arg{100}", list.CurrentKey);
+        else valueOrder.Add(list.CurrentKey, $"arg-{list.CurrentKey}");
+    }
 }
 ```
 
-**Explanation**
-
-1. **Delegate registration** – Functions are stored in `CLIParse` with an ID. Later, `DefaultFunction` uses that ID to invoke the right delegate.
-2. **Token definition** – `CLIParse.AddToken` tells the parser which strings correspond to function tokens.
-3. **Function description** – Each `DefaultFunction` defines its alias, its registered delegate ID, and its arguments.
-4. **Parsing** – `CLIParse.Parse` returns a list of `KeyValuePair<string, long>` where the key is the original argument and the value is its token type.
-5. **Analysis** – `Analyzer` checks if the token stream matches the expected structure.
-6. **Value extraction** – `GetValues` populates the `ValueOrder` dictionary with the actual argument strings.
-7. **Execution** – `Run` calls the registered delegate, passing the alias and the collected values.
-
-### Custom Implementation
-
-For complex CLI requirements, you can create your own implementations of the core interfaces.
-
-#### Key Interfaces
-
-| Interface      | Purpose                                                                                  |
-|----------------|------------------------------------------------------------------------------------------|
-| `IAlias`       | Provides an alias string and a type code.                                                |
-| `ICLIAnalyzer` | Defines an `Analyzer` method to validate a token list against the element’s structure.   |
-| `IOptionFunc`  | Base for options and arguments; adds mandatory flag, default value, and value treatment. |
-| `IArgument`    | Marker for arguments (inherits `IOptionFunc`).                                           |
-| `IOption`      | Represents an option that can contain a list of arguments.                               |
-| `IFunction`    | Represents a command with a collection of options and a `ValueOrder`.                    |
-
-#### Example: A custom option that expects two numeric arguments
+### Custom Usage
 
 ```csharp
-public class NumericRangeOption : IOption
+public class NumericRangeOption : IOption, ICLIAnalyzer
 {
     private readonly CLIKey _alias;
     private readonly List<IArgument> _arguments;
@@ -206,9 +192,8 @@ public class NumericRangeOption : IOption
     {
         _alias = new CLIKey(alias);
         Mandatory = mandatory;
-        _arguments =
-        [
-            new DefaultArgument(true, "min/{ARG}", 0), // ID 0 = default value function
+        _arguments = [
+            new DefaultArgument(true, "min/{ARG}", 0),
             new DefaultArgument(true, "max/{ARG}", 0)
         ];
     }
@@ -217,7 +202,7 @@ public class NumericRangeOption : IOption
     {
         // Custom analysis logic
         if (list is null || message is null) return true;
-        // ... implementation
+        // Implementation details...
         return false;
     }
 
@@ -231,7 +216,7 @@ public class NumericRangeOption : IOption
 
     public void TreatedValue(CLIValueOrder? valueOrder, TokenList? list)
     {
-        // Extract the two numeric arguments and store them under meaningful names
+        // Extract numeric arguments
         string min = list!.GetValueAndMove.Key;
         string max = list!.GetValueAndMove.Key;
         valueOrder!.Add("min", min);
@@ -240,62 +225,25 @@ public class NumericRangeOption : IOption
 
     public void DefaultValue(CLIValueOrder? valueOrder)
     {
-        // Provide defaults if the option is omitted
+        // Provide defaults
         valueOrder!.Add("min", "0");
         valueOrder.Add("max", "100");
     }
 }
 ```
 
-Then use this custom option inside a `DefaultFunction` or a custom `IFunction`.
+## Explanation
 
----
+The Cobilas CLI Manager works through several key concepts:
 
-## 📚 API Overview
+1. **Tokenization**: Command-line arguments are converted into tokens with type codes
+2. **Pattern Matching**: Functions define expected patterns of tokens (options, arguments)
+3. **Validation**: The input is validated against the defined patterns
+4. **Value Extraction**: Valid values are extracted and stored in order
+5. **Execution**: Functions can execute logic using the extracted values
 
-### Core Classes
+The library supports both simple linear patterns and complex nested patterns through blocks, making it suitable for everything from simple utilities to complex command-line applications.
 
-- **`CLIParse`** – Static entry point for token registration, function registration, and parsing arguments.
-- **`CLIKey`** – Represents a compound key that can match multiple alias strings (e.g., `"create/-c"`). Supports equality comparisons and implicit conversions.
-- **`CLIValueOrder`** – A dictionary‑like collection that stores key‑value pairs after parsing. Keys are `CLIKey` objects; values are strings.
-- **`TokenList`** – Wraps a list of `KeyValuePair<string, long>` with a movable cursor. Used by analyzers and value extractors.
-- **`ErrorMessage`** – Container for error information (code, message, unique ID).
+## License
 
-### Default Implementations
-
-- **`DefaultFunction`** – Implements `IFunction`. Accepts an alias, a registered delegate ID, and an array of `IOptionFunc` (options/arguments).
-- **`DefaultOption`** – Implements `IOption`. Accepts an alias, mandatory flag, registered delegate IDs for argument naming and default value, and an array of `IArgument`.
-- **`DefaultArgument`** – Implements `IArgument`. Accepts a mandatory flag, an alias, and a registered delegate ID for default value injection.
-
-### Enums
-
-- **`CLIDefaultToken`** – Predefined token types: `Function = 1`, `Option = 2`, `Argument = 3`, `EndCode = 4`.
-
----
-
-## 🧪 Advanced Topics
-
-### Token Customisation
-
-You are not limited to the default token types. When adding tokens with `CLIParse.AddToken`, you can assign any `long` value as the token ID. This allows you to create your own type system.
-
-### Function Registry
-
-`CLIParse` maintains a dictionary of delegates keyed by `uint`. This lets you separate the definition of a command’s structure from its implementation – useful for plugin architectures or dynamic CLI generation.
-
-### Error Handling Flow
-
-1. **`Analyzer`** – Checks if the token stream matches the expected pattern. Returns `true` on error and populates `ErrorMessage`.
-2. **`GetValues`** – Extracts values into `CLIValueOrder`. Returns `true` on error.
-3. **`Run`** – Executes the command logic, using the values stored in `ValueOrder`.
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE.md).  
-Feel free to use it in personal or commercial projects.
-
----
-
-*Happy coding with Cobilas.CLI.Manager!*
+This project is licensed under the MIT License - see the LICENSE file for details.

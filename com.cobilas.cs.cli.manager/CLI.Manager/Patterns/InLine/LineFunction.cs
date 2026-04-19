@@ -62,11 +62,21 @@ public readonly struct LineFunction(string alias, params IOptionFunc[] options) 
 	public bool HasTypeCode(long typeCode)
 		=> HasTypeCode(TypeCode, typeCode);
 	/// <inheritdoc/>
-	public void Run(ErrorMessage? message)
-		=> Run(CLIParse.GetFunction<DefaultValueFunc>(4), message);
+	public bool Run(ErrorMessage? message)
+		=> Run(CLIParse.GetFunction<RunFunc>(4), message);
 	/// <inheritdoc/>
-	public void Run(DefaultValueFunc? action, ErrorMessage? message)
-		=> action?.Invoke(alias, valueOrder, message);
+	public bool Run(RunFunc? action, ErrorMessage? message) {
+		if (action is null) return false;
+		foreach (RunFunc? item in action.GetInvocationList().Cast<RunFunc?>())
+			if (item is not null) {
+				bool? numB = item?.Invoke(alias, valueOrder, message);
+				if (numB.HasValue)
+					if (numB.Value)
+						return true;
+			}
+		return false;
+	}
+		//=> action?.Invoke(alias, valueOrder, message);
 	/// <inheritdoc/>
 	bool ICLIAnalyzer.Analyzer(TokenList? list, ErrorMessage? message) {
 		Delegate? func = CLIParse.GetFunction(5);

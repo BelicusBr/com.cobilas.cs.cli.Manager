@@ -8,6 +8,11 @@ global using DefaultValueFunc = System.Action<
 	Cobilas.CLI.Manager.CLIValueOrder?,
 	Cobilas.CLI.Manager.ErrorMessage?
 	>;
+global using RunFunc = System.Func<
+	Cobilas.CLI.Manager.CLIKey,
+	Cobilas.CLI.Manager.CLIValueOrder?,
+	Cobilas.CLI.Manager.ErrorMessage?,
+	bool>;
 global using GetValuesFunc = System.Func<
 	Cobilas.CLI.Manager.CLIKey,
 	Cobilas.CLI.Manager.TokenList?,
