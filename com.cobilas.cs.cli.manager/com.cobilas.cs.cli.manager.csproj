@@ -6,7 +6,7 @@
         <LangVersion>default</LangVersion>
         <Nullable>enable</Nullable>
         <RootNamespace>Cobilas</RootNamespace>
-        <Version>3.0.0</Version>
+        <Version>4.0.0</Version>
 		<OutputPath>bin\$(Version)\$(Configuration)\$(TargetFramework)</OutputPath>
 		<NoWarn>CA1041;CA1864</NoWarn>
 	</PropertyGroup>
@@ -27,6 +27,7 @@
         <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
 	</PropertyGroup>
     <ItemGroup>
+        <None Include="..\project-git-funcs.ps1"/>
         <None Include="..\README.md" Pack="true" PackagePath="\" />
         <None Include="..\LICENSE.md" Pack="true" PackagePath="\" />
         <None Include="..\CHANGELOG.md" Pack="true" PackagePath="\" />

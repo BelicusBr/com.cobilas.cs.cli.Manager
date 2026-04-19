@@ -43,6 +43,7 @@ public class CLIValueOrder(int capacity) : IDictionary<CLIKey, string?> {
 	/// </summary>
 	/// <param name="key">The key of the value to get or set.</param>
 	/// <returns>The value associated with the key.</returns>
+	/// <value>The value to associate with the key.</value>
 	/// <exception cref="InvalidOperationException">Thrown when getting a value for a key that does not exist.</exception>
 	public string? this[CLIKey key] {
 		get => valueOrder[KeyIndex(key)].Value;
@@ -86,6 +87,14 @@ public class CLIValueOrder(int capacity) : IDictionary<CLIKey, string?> {
 	/// <param name="value">The value of the element to add.</param>
 	/// <exception cref="InvalidOperationException">Thrown if the key already exists.</exception>
 	public void Add(CLIKey key, string? value) => Add(new(key, value));
+	/// <summary>
+	/// Adds a range of key-value pairs to the collection.
+	/// </summary>
+	/// <param name="list">The enumerable collection of pairs to add.</param>
+	public void AddRange(IEnumerable<KeyValuePair<CLIKey, string?>> list) {
+		foreach (KeyValuePair<CLIKey, string?> item in list)
+			Add(item);
+	}
 	/// <summary>
 	/// Determines whether the collection contains a specific key-value pair.
 	/// </summary>
@@ -163,9 +172,9 @@ public class CLIValueOrder(int capacity) : IDictionary<CLIKey, string?> {
 	public IEnumerator<KeyValuePair<CLIKey, string?>> GetEnumerator() {
 		for (int I = 0; I < _size; I++)
 			yield return valueOrder[I];
-	}
+	} 
 	/// <inheritdoc/>
-	IEnumerator IEnumerable.GetEnumerator() {
+	IEnumerator IEnumerable.GetEnumerator(){
 		for (int I = 0; I < _size; I++)
 			yield return valueOrder[I];
 	}
