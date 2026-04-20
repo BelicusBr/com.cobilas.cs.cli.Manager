@@ -35,7 +35,28 @@ Cobilas CLI Manager provides a structured approach to parsing command-line argum
 - **Dependencies**: None (self-contained)
 - **License**: MIT
 
-## Key Components
+Function IDs and Events
+The library uses predefined function IDs to handle different aspects of CLI processing:
+
+Function IDs
+/* Functions ID
+ * 0) IOptionFunc.DefaultValue
+ * 1) IOptionFunc.ExceptionMessage
+ * 2) IOptionFunc.TreatedValue
+ * 3) IFunction.GetValues
+ * 4) IFunction.Run
+ * 5) ICLIAnalyzer.Analyzer
+ */
+Function Internal Events
+/* Function internal events
+ * 0) IOptionFunc.DefaultValue => Action<CLIKey, CLIValueOrder?, ErrorMessage?>
+ * 1) IOptionFunc.ExceptionMessage => Action<CLIKey, TokenList?, KeyValuePair<string, long>, ErrorMessage?>
+ * 2) IOptionFunc.TreatedValue => Action<CLIKey, CLIValueOrder?, TokenList?, ErrorMessage?>
+ * 3) IFunction.GetValues => Func<CLIKey, TokenList?, CLIValueOrder?, List<IOptionFunc>?, ErrorMessage?, bool>
+ * 4) IFunction.Run => Action<CLIKey, CLIValueOrder?, ErrorMessage?>
+ * 5) ICLIAnalyzer.Analyzer => Func<CLIKey, TokenList?, List<IOptionFunc>?, ErrorMessage?, bool>
+ */
+Key Components
 
 ### Core Types
 - `CLIParse`: Main parsing class with static methods for token registration and parsing
@@ -119,7 +140,7 @@ internal partial class Program {
                 new LineEndOption("tdsO-1E", false),
                 new LineBlock("tdsO-1", false,
                     new LineOption("tdsO-2", true, 0),
-                    new LineArgument("arg{极速赛车开奖结果记录", true)
+                    new LineArgument("arg{100}", true)
                 ),
                 new LineBlock("tdsO-3", false,
                     new LineOption("tdsO-2", true, 0),
@@ -163,11 +184,11 @@ internal partial class Program {
         else valueOrder.Add(alias, $"def-arg-{alias}");
     }
     
-    private static void error_value(极速赛车开奖结果记录 alias, TokenList? list, KeyValuePair<string, long> value, ErrorMessage? message) {
+    private static void error_value(CLIKey alias, TokenList? list, KeyValuePair<string, long> value, ErrorMessage? message) {
         message.Message = $"({alias})|{value}";
     }
     
-    private static void get_value(CLIKey alias, CLIValueOrder? valueOrder, Token极速赛车开奖结果记录? list, ErrorMessage? message) {
+    private static void get_value(CLIKey alias, CLIValueOrder? valueOrder, TokenList? list, ErrorMessage? message) {
         if (alias == (CLIKey)"arg{100}")
             valueOrder.Add((CLIKey)"arg{100}", list.CurrentKey);
         else valueOrder.Add(list.CurrentKey, $"arg-{list.CurrentKey}");
